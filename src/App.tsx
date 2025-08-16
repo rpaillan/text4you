@@ -244,10 +244,42 @@ function App(): JSX.Element {
         
         <DragOverlay>
           {draggedCard ? (
-            <div className="dragged-card-overlay">
-              <div className="card-preview">
-                <h4>{draggedCard.title}</h4>
-                {draggedCard.description && <p>{draggedCard.description}</p>}
+            <div className="card dragged-card-overlay">
+              <div className="card-header">
+                <div className="card-priority">
+                  <span 
+                    className="priority-dot"
+                    style={{ 
+                      backgroundColor: (() => {
+                        switch (draggedCard.priority) {
+                          case 'high': return '#ef4444';
+                          case 'medium': return '#f59e0b';
+                          case 'low': return '#10b981';
+                          default: return '#6b7280';
+                        }
+                      })()
+                    }}
+                  />
+                  {draggedCard.priority}
+                </div>
+                <div className="card-actions">
+                  <button className="edit-btn">✏️</button>
+                  <button className="delete-btn">🗑️</button>
+                </div>
+              </div>
+              
+              <div className="card-drag-handle">
+                <h4 className="card-title">{draggedCard.title}</h4>
+                
+                {draggedCard.description && (
+                  <p className="card-description">{draggedCard.description}</p>
+                )}
+                
+                <div className="card-footer">
+                  <span className="card-date">
+                    Created: {new Date(draggedCard.created_at).toLocaleDateString()}
+                  </span>
+                </div>
               </div>
             </div>
           ) : null}
