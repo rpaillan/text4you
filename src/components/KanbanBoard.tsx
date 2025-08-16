@@ -23,9 +23,13 @@ const KanbanBoard: React.FC<KanbanBoardProps> = ({
   const [showAddModal, setShowAddModal] = useState<boolean>(false);
   const [selectedStatus, setSelectedStatus] = useState<CardStatus>('idea');
 
-  // Make the entire board droppable
+  // Make the entire board droppable with extended area
   const { setNodeRef, isOver } = useDroppable({
     id: 'kanban-board',
+    data: {
+      accepts: ['card'],
+      type: 'board'
+    }
   });
 
   const columns = [

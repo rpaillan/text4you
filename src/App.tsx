@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, DragEndEvent } from '@dnd-kit/core';
+import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, DragEndEvent, DragStartEvent, DragOverlay } from '@dnd-kit/core';
 import { arrayMove } from '@dnd-kit/sortable';
 import KanbanBoard from './components/KanbanBoard';
 import EditCardModal from './components/EditCardModal';
@@ -11,9 +11,14 @@ function App(): JSX.Element {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [editingCard, setEditingCard] = useState<Card | null>(null);
+  const [draggedCard, setDraggedCard] = useState<Card | null>(null);
   
   const sensors = useSensors(
-    useSensor(PointerSensor),
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 8,
+      },
+    }),
     useSensor(KeyboardSensor)
   );
 
@@ -38,20 +43,31 @@ function App(): JSX.Element {
 
   const handleDragEnd = async (event: DragEndEvent): Promise<void> => {
     const { active, over } = event;
+
+    console.log('active', active, over);
     
-    if (!over || active.id === over.id) return;
+    if (!over || active.id === over.id) {
+      setDraggedCard(null);
+      return;
+    }
 
     const activeId = typeof active.id === 'string' ? parseInt(active.id) : active.id;
     const activeCard = cards.find(card => card.id === activeId);
     
-    if (!activeCard) return;
+    if (!activeCard) {
+      setDraggedCard(null);
+      return;
+    }
     
     // Check if we're dropping on a column, the board, or a card
     if (over.id === 'idea' || over.id === 'in_progress' || over.id === 'done') {
       // Dropping on a column - move card to that column
       const targetStatus = over.id as CardStatus;
       
-      if (activeCard.status === targetStatus) return; // Already in the same column
+      if (activeCard.status === targetStatus) {
+        setDraggedCard(null);
+        return; // Already in the same column
+      }
       
       try {
         const response = await fetch(`/api/cards/${activeId}/status`, {
@@ -82,13 +98,17 @@ function App(): JSX.Element {
     } else if (over.id === 'kanban-board') {
       // Dropping on the board area - keep card in current column
       // This prevents the drag from resetting when leaving a column
+      setDraggedCard(null);
       return;
     } else {
       // Dropping on another card - reorder within the same column
       const overId = typeof over.id === 'string' ? parseInt(over.id) : over.id;
       const overCard = cards.find(card => card.id === overId);
       
-      if (!overCard || activeCard.status !== overCard.status) return;
+      if (!overCard || activeCard.status !== overCard.status) {
+        setDraggedCard(null);
+        return;
+      }
       
       // Same column, just reorder
       const columnCards = cards.filter(card => card.status === activeCard.status);
@@ -98,6 +118,21 @@ function App(): JSX.Element {
       const newCards = arrayMove(cards, oldIndex, newIndex);
       setCards(newCards);
     }
+    
+    setDraggedCard(null);
+  };
+
+  const handleDragStart = (event: DragStartEvent): void => {
+    const { active } = event;
+    const activeId = typeof active.id === 'string' ? parseInt(active.id) : active.id;
+    const activeCard = cards.find(card => card.id === activeId);
+    if (activeCard) {
+      setDraggedCard(activeCard);
+    }
+  };
+
+  const handleDragCancel = (): void => {
+    setDraggedCard(null);
   };
 
   const addCard = async (cardData: Omit<Card, 'id' | 'created_at' | 'updated_at'>): Promise<void> => {
@@ -180,6 +215,8 @@ function App(): JSX.Element {
         sensors={sensors}
         collisionDetection={closestCenter}
         onDragEnd={handleDragEnd}
+        onDragStart={handleDragStart}
+        onDragCancel={handleDragCancel}
       >
         <KanbanBoard
           cards={cards}
@@ -188,6 +225,17 @@ function App(): JSX.Element {
           onDeleteCard={deleteCard}
           onEditCard={setEditingCard}
         />
+        
+        <DragOverlay>
+          {draggedCard ? (
+            <div className="dragged-card-overlay">
+              <div className="card-preview">
+                <h4>{draggedCard.title}</h4>
+                {draggedCard.description && <p>{draggedCard.description}</p>}
+              </div>
+            </div>
+          ) : null}
+        </DragOverlay>
       </DndContext>
       
       {editingCard && (
