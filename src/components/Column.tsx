@@ -39,7 +39,16 @@ const Column: React.FC<ColumnProps> = ({
   
   // Determine if we should show the drop preview and where
   const shouldShowDropPreview = isOver && active && active.data?.current?.type === 'card';
-  
+  if (id === 'done') {
+    console.log('shouldShowDropPreview', {
+      id,
+      shouldShowDropPreview,
+      isOver,
+      active,
+      cards: cards.length,
+      type: active?.data?.current?.type
+    });
+  }
   return (
     <div className="column">
       <div className="column-header" style={{ borderTopColor: color }}>

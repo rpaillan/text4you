@@ -22,7 +22,13 @@ const Card: React.FC<CardProps> = ({ card, onUpdate, onDelete, onEdit }) => {
     transform,
     transition,
     isDragging,
-  } = useSortable({ id: card.id });
+  } = useSortable({ 
+    id: card.id,
+    data: {
+      type: 'card',
+      card: card
+    }
+  });
 
   const getPriorityColor = (priority: Priority): string => {
     switch (priority) {
