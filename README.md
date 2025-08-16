@@ -15,10 +15,10 @@ A modern, responsive kanban board application built with React, Vite, SASS, and 
 
 ## Tech Stack
 
-- **Frontend**: React 18, Vite, SASS
-- **Backend**: Node.js, Express
+- **Frontend**: React 18, TypeScript, Vite, SASS
+- **Backend**: Node.js, Express, TypeScript
 - **Database**: SQLite3
-- **Drag & Drop**: react-beautiful-dnd
+- **Drag & Drop**: @dnd-kit (modern drag & drop library)
 - **Styling**: SASS with modern CSS features
 
 ## Project Structure
@@ -64,7 +64,7 @@ kanban/
 
 3. **Start the backend server**
    ```bash
-   node server.js
+   npm run server
    ```
    The server will start on `http://localhost:5001` and create the SQLite database in the `/data` folder.
 
@@ -134,9 +134,12 @@ CREATE TABLE cards (
 ### Available Scripts
 
 - `npm run dev` - Start Vite development server
-- `npm run build` - Build for production
+- `npm run build` - Build for production (TypeScript + Vite)
 - `npm run preview` - Preview production build
 - `npm run lint` - Run ESLint
+- `npm run server` - Start TypeScript backend server
+- `npm run start` - Start both backend and frontend
+- `npm run type-check` - Run TypeScript type checking
 
 ### Adding New Features
 

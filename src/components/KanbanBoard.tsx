@@ -1,24 +1,37 @@
 import React, { useState } from 'react';
-import Column from './Column';
-import AddCardModal from './AddCardModal';
+import Column from './Column.tsx';
+import AddCardModal from './AddCardModal.tsx';
+import { Card, CardStatus, CreateCardData } from '../types/index.js';
 import './KanbanBoard.scss';
 
-const KanbanBoard = ({ cards, onAddCard, onUpdateCard, onDeleteCard }) => {
-  const [showAddModal, setShowAddModal] = useState(false);
-  const [selectedStatus, setSelectedStatus] = useState('idea');
+interface KanbanBoardProps {
+  cards: Card[];
+  onAddCard: (cardData: CreateCardData) => Promise<void>;
+  onUpdateCard: (id: number, cardData: Partial<CreateCardData>) => Promise<void>;
+  onDeleteCard: (id: number) => Promise<void>;
+}
+
+const KanbanBoard: React.FC<KanbanBoardProps> = ({ 
+  cards, 
+  onAddCard, 
+  onUpdateCard, 
+  onDeleteCard 
+}) => {
+  const [showAddModal, setShowAddModal] = useState<boolean>(false);
+  const [selectedStatus, setSelectedStatus] = useState<CardStatus>('idea');
 
   const columns = [
-    { id: 'idea', title: 'Idea', color: '#6366f1' },
-    { id: 'in_progress', title: 'In Progress', color: '#f59e0b' },
-    { id: 'done', title: 'Done', color: '#10b981' }
+    { id: 'idea' as const, title: 'Idea', color: '#6366f1' },
+    { id: 'in_progress' as const, title: 'In Progress', color: '#f59e0b' },
+    { id: 'done' as const, title: 'Done', color: '#10b981' }
   ];
 
-  const handleAddCard = (cardData) => {
+  const handleAddCard = (cardData: CreateCardData): void => {
     onAddCard({ ...cardData, status: selectedStatus });
     setShowAddModal(false);
   };
 
-  const openAddModal = (status) => {
+  const openAddModal = (status: CardStatus): void => {
     setSelectedStatus(status);
     setShowAddModal(true);
   };

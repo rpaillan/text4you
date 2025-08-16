@@ -1,13 +1,14 @@
-import React, { useState, useEffect } from 'react';
-import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
-import { SortableContext, arrayMove, verticalListSortingStrategy } from '@dnd-kit/sortable';
-import KanbanBoard from './components/KanbanBoard';
+import { useState, useEffect } from 'react';
+import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, DragEndEvent } from '@dnd-kit/core';
+import { arrayMove } from '@dnd-kit/sortable';
+import KanbanBoard from './components/KanbanBoard.tsx';
+import { Card } from './types/index.js';
 import './App.scss';
 
-function App() {
-  const [cards, setCards] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+function App(): JSX.Element {
+  const [cards, setCards] = useState<Card[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
   
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -18,43 +19,46 @@ function App() {
     fetchCards();
   }, []);
 
-  const fetchCards = async () => {
+  const fetchCards = async (): Promise<void> => {
     try {
       const response = await fetch('/api/cards');
       if (!response.ok) {
         throw new Error('Failed to fetch cards');
       }
-      const data = await response.json();
+      const data: Card[] = await response.json();
       setCards(data);
     } catch (err) {
-      setError(err.message);
+      setError(err instanceof Error ? err.message : 'An error occurred');
     } finally {
       setLoading(false);
     }
   };
 
-  const handleDragEnd = async (event) => {
+  const handleDragEnd = async (event: DragEndEvent): Promise<void> => {
     const { active, over } = event;
     
     if (!over || active.id === over.id) return;
 
-    const activeCard = cards.find(card => card.id === active.id);
-    const overCard = cards.find(card => card.id === over.id);
+    const activeId = typeof active.id === 'string' ? parseInt(active.id) : active.id;
+    const overId = typeof over.id === 'string' ? parseInt(over.id) : over.id;
+
+    const activeCard = cards.find(card => card.id === activeId);
+    const overCard = cards.find(card => card.id === overId);
     
     if (!activeCard || !overCard) return;
     
     if (activeCard.status === overCard.status) {
       // Same column, just reorder
       const columnCards = cards.filter(card => card.status === activeCard.status);
-      const oldIndex = columnCards.findIndex(card => card.id === active.id);
-      const newIndex = columnCards.findIndex(card => card.id === over.id);
+      const oldIndex = columnCards.findIndex(card => card.id === activeId);
+      const newIndex = columnCards.findIndex(card => card.id === overId);
       
       const newCards = arrayMove(cards, oldIndex, newIndex);
       setCards(newCards);
     } else {
       // Different column, update status
       try {
-        const response = await fetch(`/api/cards/${active.id}/status`, {
+        const response = await fetch(`/api/cards/${activeId}/status`, {
           method: 'PATCH',
           headers: {
             'Content-Type': 'application/json',
@@ -69,20 +73,20 @@ function App() {
         // Update local state
         setCards(prevCards =>
           prevCards.map(card =>
-            card.id === active.id
+            card.id === activeId
               ? { ...card, status: overCard.status }
               : card
           )
         );
       } catch (err) {
-        setError(err.message);
+        setError(err instanceof Error ? err.message : 'An error occurred');
         // Revert the change on error
         fetchCards();
       }
     }
   };
 
-  const addCard = async (cardData) => {
+  const addCard = async (cardData: Omit<Card, 'id' | 'created_at' | 'updated_at'>): Promise<void> => {
     try {
       const response = await fetch('/api/cards', {
         method: 'POST',
@@ -96,14 +100,14 @@ function App() {
         throw new Error('Failed to create card');
       }
 
-      const newCard = await response.json();
+      const newCard: Card = await response.json();
       setCards(prevCards => [newCard, ...prevCards]);
     } catch (err) {
-      setError(err.message);
+      setError(err instanceof Error ? err.message : 'An error occurred');
     }
   };
 
-  const updateCard = async (id, cardData) => {
+  const updateCard = async (id: number, cardData: Partial<Omit<Card, 'id' | 'created_at' | 'updated_at'>>): Promise<void> => {
     try {
       const response = await fetch(`/api/cards/${id}`, {
         method: 'PUT',
@@ -117,18 +121,18 @@ function App() {
         throw new Error('Failed to update card');
       }
 
-      const updatedCard = await response.json();
+      const updatedCard: Card = await response.json();
       setCards(prevCards =>
         prevCards.map(card =>
           card.id === id ? updatedCard : card
         )
       );
     } catch (err) {
-      setError(err.message);
+      setError(err instanceof Error ? err.message : 'An error occurred');
     }
   };
 
-  const deleteCard = async (id) => {
+  const deleteCard = async (id: number): Promise<void> => {
     try {
       const response = await fetch(`/api/cards/${id}`, {
         method: 'DELETE',
@@ -140,7 +144,7 @@ function App() {
 
       setCards(prevCards => prevCards.filter(card => card.id !== id));
     } catch (err) {
-      setError(err.message);
+      setError(err instanceof Error ? err.message : 'An error occurred');
     }
   };
 

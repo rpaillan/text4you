@@ -1,11 +1,19 @@
 import React, { useState } from 'react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import EditCardModal from './EditCardModal';
+import EditCardModal from './EditCardModal.tsx';
+import { Card as CardType, Priority, CreateCardData } from '../types/index.js';
 import './Card.scss';
 
-const Card = ({ card, index, onUpdate, onDelete }) => {
-  const [showEditModal, setShowEditModal] = useState(false);
+interface CardProps {
+  card: CardType;
+  index: number;
+  onUpdate: (id: number, cardData: Partial<CreateCardData>) => Promise<void>;
+  onDelete: (id: number) => Promise<void>;
+}
+
+const Card: React.FC<CardProps> = ({ card, onUpdate, onDelete }) => {
+  const [showEditModal, setShowEditModal] = useState<boolean>(false);
   
   const {
     attributes,
@@ -16,7 +24,7 @@ const Card = ({ card, index, onUpdate, onDelete }) => {
     isDragging,
   } = useSortable({ id: card.id });
 
-  const getPriorityColor = (priority) => {
+  const getPriorityColor = (priority: Priority): string => {
     switch (priority) {
       case 'high': return '#ef4444';
       case 'medium': return '#f59e0b';
@@ -25,7 +33,7 @@ const Card = ({ card, index, onUpdate, onDelete }) => {
     }
   };
 
-  const formatDate = (dateString) => {
+  const formatDate = (dateString: string): string => {
     return new Date(dateString).toLocaleDateString();
   };
 

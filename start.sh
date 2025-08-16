@@ -2,7 +2,7 @@
 
 # Start the backend server
 echo "Starting backend server on port 5001..."
-node server.js &
+npm run server &
 BACKEND_PID=$!
 
 # Wait for backend to start

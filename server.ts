@@ -1,8 +1,9 @@
-import express from 'express';
+import express, { Request, Response } from 'express';
 import cors from 'cors';
 import sqlite3 from 'sqlite3';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { Card, CreateCardData, UpdateCardData } from './src/types/index.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -34,9 +35,14 @@ db.serialize(() => {
   `);
 
   // Insert some sample data if table is empty
-  db.get("SELECT COUNT(*) as count FROM cards", (err, row) => {
-    if (row.count === 0) {
-      const sampleCards = [
+  db.get("SELECT COUNT(*) as count FROM cards", (err, row: { count: number } | undefined) => {
+    if (err) {
+      console.error('Error checking card count:', err);
+      return;
+    }
+    
+    if (row && row.count === 0) {
+      const sampleCards: CreateCardData[] = [
         { title: 'Design new logo', description: 'Create a modern logo for the company', status: 'idea', priority: 'high' },
         { title: 'Setup development environment', description: 'Install all necessary tools and dependencies', status: 'in_progress', priority: 'high' },
         { title: 'Write documentation', description: 'Document the API endpoints and usage', status: 'done', priority: 'medium' },
@@ -56,8 +62,8 @@ db.serialize(() => {
 // API Routes
 
 // Get all cards
-app.get('/api/cards', (req, res) => {
-  db.all("SELECT * FROM cards ORDER BY created_at DESC", (err, rows) => {
+app.get('/api/cards', (_req: Request, res: Response) => {
+  db.all("SELECT * FROM cards ORDER BY created_at DESC", (err, rows: Card[]) => {
     if (err) {
       res.status(500).json({ error: err.message });
       return;
@@ -67,7 +73,7 @@ app.get('/api/cards', (req, res) => {
 });
 
 // Create a new card
-app.post('/api/cards', (req, res) => {
+app.post('/api/cards', (req: Request<{}, {}, CreateCardData>, res: Response) => {
   const { title, description, status, priority } = req.body;
   
   if (!title || !status) {
@@ -85,7 +91,7 @@ app.post('/api/cards', (req, res) => {
       }
       
       // Get the newly created card
-      db.get("SELECT * FROM cards WHERE id = ?", [this.lastID], (err, row) => {
+      db.get("SELECT * FROM cards WHERE id = ?", [this.lastID], (err, row: Card | undefined) => {
         if (err) {
           res.status(500).json({ error: err.message });
           return;
@@ -97,9 +103,14 @@ app.post('/api/cards', (req, res) => {
 });
 
 // Update a card
-app.put('/api/cards/:id', (req, res) => {
-  const { id } = req.params;
+app.put('/api/cards/:id', (req: Request<{ id: string }, {}, UpdateCardData>, res: Response) => {
+  const id = parseInt(req.params.id);
   const { title, description, status, priority } = req.body;
+  
+  if (isNaN(id)) {
+    res.status(400).json({ error: 'Invalid card ID' });
+    return;
+  }
   
   db.run(
     "UPDATE cards SET title = ?, description = ?, status = ?, priority = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?",
@@ -116,7 +127,7 @@ app.put('/api/cards/:id', (req, res) => {
       }
       
       // Get the updated card
-      db.get("SELECT * FROM cards WHERE id = ?", [id], (err, row) => {
+      db.get("SELECT * FROM cards WHERE id = ?", [id], (err, row: Card | undefined) => {
         if (err) {
           res.status(500).json({ error: err.message });
           return;
@@ -128,8 +139,13 @@ app.put('/api/cards/:id', (req, res) => {
 });
 
 // Delete a card
-app.delete('/api/cards/:id', (req, res) => {
-  const { id } = req.params;
+app.delete('/api/cards/:id', (req: Request<{ id: string }>, res: Response) => {
+  const id = parseInt(req.params.id);
+  
+  if (isNaN(id)) {
+    res.status(400).json({ error: 'Invalid card ID' });
+    return;
+  }
   
   db.run("DELETE FROM cards WHERE id = ?", [id], function(err) {
     if (err) {
@@ -147,9 +163,14 @@ app.delete('/api/cards/:id', (req, res) => {
 });
 
 // Update card status (for drag and drop)
-app.patch('/api/cards/:id/status', (req, res) => {
-  const { id } = req.params;
+app.patch('/api/cards/:id/status', (req: Request<{ id: string }, {}, { status: string }>, res: Response) => {
+  const id = parseInt(req.params.id);
   const { status } = req.body;
+  
+  if (isNaN(id)) {
+    res.status(400).json({ error: 'Invalid card ID' });
+    return;
+  }
   
   if (!status) {
     res.status(400).json({ error: 'Status is required' });

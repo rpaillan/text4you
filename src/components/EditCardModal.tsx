@@ -1,22 +1,38 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { Card as CardType, CreateCardData } from '../types/index.js';
 import './Modal.scss';
 
-const AddCardModal = ({ onClose, onSubmit, initialStatus }) => {
-  const [formData, setFormData] = useState({
+interface EditCardModalProps {
+  card: CardType;
+  onClose: () => void;
+  onSubmit: (updatedData: CreateCardData) => void;
+}
+
+const EditCardModal: React.FC<EditCardModalProps> = ({ card, onClose, onSubmit }) => {
+  const [formData, setFormData] = useState<CreateCardData>({
     title: '',
     description: '',
-    status: initialStatus,
+    status: 'idea',
     priority: 'medium'
   });
 
-  const handleSubmit = (e) => {
+  useEffect(() => {
+    setFormData({
+      title: card.title || '',
+      description: card.description || '',
+      status: card.status || 'idea',
+      priority: card.priority || 'medium'
+    });
+  }, [card]);
+
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>): void => {
     e.preventDefault();
     if (!formData.title.trim()) return;
     
     onSubmit(formData);
   };
 
-  const handleChange = (e) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>): void => {
     const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
@@ -28,7 +44,7 @@ const AddCardModal = ({ onClose, onSubmit, initialStatus }) => {
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-content" onClick={e => e.stopPropagation()}>
         <div className="modal-header">
-          <h2>Add New Card</h2>
+          <h2>Edit Card</h2>
           <button className="close-btn" onClick={onClose}>×</button>
         </div>
         
@@ -54,7 +70,7 @@ const AddCardModal = ({ onClose, onSubmit, initialStatus }) => {
               value={formData.description}
               onChange={handleChange}
               placeholder="Enter card description"
-              rows="3"
+              rows={3}
             />
           </div>
           
@@ -74,7 +90,7 @@ const AddCardModal = ({ onClose, onSubmit, initialStatus }) => {
             </div>
             
             <div className="form-group">
-              <label htmlFor="priority">Priority</label>
+              <label htmlFor="status">Priority</label>
               <select
                 id="priority"
                 name="priority"
@@ -93,7 +109,7 @@ const AddCardModal = ({ onClose, onSubmit, initialStatus }) => {
               Cancel
             </button>
             <button type="submit" className="btn-primary">
-              Add Card
+              Update Card
             </button>
           </div>
         </form>
@@ -102,4 +118,4 @@ const AddCardModal = ({ onClose, onSubmit, initialStatus }) => {
   );
 };
 
-export default AddCardModal;
+export default EditCardModal;

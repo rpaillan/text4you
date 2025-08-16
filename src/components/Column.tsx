@@ -1,10 +1,29 @@
 import React from 'react';
 import { useDroppable } from '@dnd-kit/core';
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
-import Card from './Card';
+import Card from './Card.tsx';
+import { Card as CardType, CardStatus, CreateCardData } from '../types/index.js';
 import './Column.scss';
 
-const Column = ({ id, title, color, cards, onAddCard, onUpdateCard, onDeleteCard }) => {
+interface ColumnProps {
+  id: CardStatus;
+  title: string;
+  color: string;
+  cards: CardType[];
+  onAddCard: () => void;
+  onUpdateCard: (id: number, cardData: Partial<CreateCardData>) => Promise<void>;
+  onDeleteCard: (id: number) => Promise<void>;
+}
+
+const Column: React.FC<ColumnProps> = ({ 
+  id, 
+  title, 
+  color, 
+  cards, 
+  onAddCard, 
+  onUpdateCard, 
+  onDeleteCard 
+}) => {
   const { setNodeRef, isOver } = useDroppable({
     id: id,
   });
