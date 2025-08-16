@@ -83,6 +83,16 @@ function App(): JSX.Element {
       
       try {
         console.log('Making API call to move card to status:', targetStatus);
+        
+        // Update local state immediately for smooth animation
+        setCards(prevCards =>
+          prevCards.map(card =>
+            card.id === activeId
+              ? { ...card, status: targetStatus }
+              : card
+          )
+        );
+        
         const response = await fetch(`/api/cards/${activeId}/status`, {
           method: 'PATCH',
           headers: {
@@ -96,18 +106,11 @@ function App(): JSX.Element {
         }
 
         console.log('Successfully moved card to column:', targetStatus);
-        // Update local state
-        setCards(prevCards =>
-          prevCards.map(card =>
-            card.id === activeId
-              ? { ...card, status: targetStatus }
-              : card
-          )
-        );
+        // Local state is already updated, no need to update again
       } catch (err) {
         console.error('Error moving card:', err);
         setError(err instanceof Error ? err.message : 'An error occurred');
-        // Revert the change on error
+        // Revert the change on error by refetching
         fetchCards();
       }
     } else {
