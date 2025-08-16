@@ -1,7 +1,7 @@
 import React from 'react';
 import { useDroppable } from '@dnd-kit/core';
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
-import Card from './Card.tsx';
+import Card from './Card';
 import { Card as CardType, CardStatus, CreateCardData } from '../types/index.js';
 import './Column.scss';
 

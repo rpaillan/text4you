@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import EditCardModal from './EditCardModal.tsx';
+import EditCardModal from './EditCardModal';
 import { Card as CardType, Priority, CreateCardData } from '../types/index.js';
 import './Card.scss';
 
@@ -59,16 +59,22 @@ const Card: React.FC<CardProps> = ({ card, onUpdate, onDelete }) => {
             />
             {card.priority}
           </div>
-          <div className="card-actions">
+          <div className="card-actions" onClick={(e) => e.stopPropagation()}>
             <button 
               className="edit-btn"
-              onClick={() => setShowEditModal(true)}
+              onClick={(e) => {
+                e.stopPropagation();
+                setShowEditModal(true);
+              }}
             >
               ✏️
             </button>
             <button 
               className="delete-btn"
-              onClick={() => onDelete(card.id)}
+              onClick={(e) => {
+                e.stopPropagation();
+                onDelete(card.id);
+              }}
             >
               🗑️
             </button>

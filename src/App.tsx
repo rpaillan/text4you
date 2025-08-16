@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, DragEndEvent } from '@dnd-kit/core';
 import { arrayMove } from '@dnd-kit/sortable';
-import KanbanBoard from './components/KanbanBoard.tsx';
+import KanbanBoard from './components/KanbanBoard';
 import { Card } from './types/index.js';
 import './App.scss';
 

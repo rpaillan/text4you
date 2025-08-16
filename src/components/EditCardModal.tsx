@@ -90,7 +90,7 @@ const EditCardModal: React.FC<EditCardModalProps> = ({ card, onClose, onSubmit }
             </div>
             
             <div className="form-group">
-              <label htmlFor="status">Priority</label>
+              <label htmlFor="priority">Priority</label>
               <select
                 id="priority"
                 name="priority"

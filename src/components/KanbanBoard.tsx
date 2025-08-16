@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import Column from './Column.tsx';
-import AddCardModal from './AddCardModal.tsx';
+import Column from './Column';
+import AddCardModal from './AddCardModal';
 import { Card, CardStatus, CreateCardData } from '../types/index.js';
 import './KanbanBoard.scss';
 
