@@ -44,9 +44,12 @@ function App(): JSX.Element {
   const handleDragEnd = async (event: DragEndEvent): Promise<void> => {
     const { active, over } = event;
 
-    console.log('active', active, over);
+    console.log('Drag End Event:', { active, over });
+    console.log('Active ID:', active.id, 'Over ID:', over?.id);
+    console.log('Over Data:', over?.data);
     
     if (!over || active.id === over.id) {
+      console.log('No valid drop target or same element');
       setDraggedCard(null);
       return;
     }
@@ -55,21 +58,31 @@ function App(): JSX.Element {
     const activeCard = cards.find(card => card.id === activeId);
     
     if (!activeCard) {
+      console.log('Active card not found');
       setDraggedCard(null);
       return;
     }
     
+    console.log('Active Card:', activeCard);
+    console.log('Over Element Type:', over.data);
+    
     // Check if we're dropping on a column, the board, or a card
     if (over.id === 'idea' || over.id === 'in_progress' || over.id === 'done') {
+      console.log('Dropping on column:', over.id);
+      console.log('Column ID type:', typeof over.id, 'Value:', over.id);
+      console.log('Target status:', over.id as CardStatus);
+      
       // Dropping on a column - move card to that column
       const targetStatus = over.id as CardStatus;
       
       if (activeCard.status === targetStatus) {
+        console.log('Card already in target column');
         setDraggedCard(null);
         return; // Already in the same column
       }
       
       try {
+        console.log('Making API call to move card to status:', targetStatus);
         const response = await fetch(`/api/cards/${activeId}/status`, {
           method: 'PATCH',
           headers: {
@@ -82,6 +95,7 @@ function App(): JSX.Element {
           throw new Error('Failed to update card status');
         }
 
+        console.log('Successfully moved card to column:', targetStatus);
         // Update local state
         setCards(prevCards =>
           prevCards.map(card =>
@@ -91,25 +105,24 @@ function App(): JSX.Element {
           )
         );
       } catch (err) {
+        console.error('Error moving card:', err);
         setError(err instanceof Error ? err.message : 'An error occurred');
         // Revert the change on error
         fetchCards();
       }
-    } else if (over.id === 'kanban-board') {
-      // Dropping on the board area - keep card in current column
-      // This prevents the drag from resetting when leaving a column
-      setDraggedCard(null);
-      return;
     } else {
+      console.log('Dropping on card or other element:', over.id);
       // Dropping on another card - reorder within the same column
       const overId = typeof over.id === 'string' ? parseInt(over.id) : over.id;
       const overCard = cards.find(card => card.id === overId);
       
       if (!overCard || activeCard.status !== overCard.status) {
+        console.log('Invalid card drop or different columns');
         setDraggedCard(null);
         return;
       }
       
+      console.log('Reordering cards within same column');
       // Same column, just reorder
       const columnCards = cards.filter(card => card.status === activeCard.status);
       const oldIndex = columnCards.findIndex(card => card.id === activeId);

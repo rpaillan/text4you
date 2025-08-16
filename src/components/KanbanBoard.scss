@@ -40,13 +40,6 @@
   gap: 2rem;
   align-items: start;
   position: relative; // Ensure proper stacking context
-  
-  &.dragging-over {
-    background: rgba(99, 102, 241, 0.05);
-    border: 2px dashed #6366f1;
-    border-radius: 12px;
-    transition: all 0.3s ease;
-  }
 }
 
 @media (max-width: 768px) {

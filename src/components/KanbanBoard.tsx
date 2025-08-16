@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { useDroppable } from '@dnd-kit/core';
 import Column from './Column';
 import AddCardModal from './AddCardModal';
 import { Card, CardStatus, CreateCardData } from '../types/index.js';
@@ -23,15 +22,6 @@ const KanbanBoard: React.FC<KanbanBoardProps> = ({
   const [showAddModal, setShowAddModal] = useState<boolean>(false);
   const [selectedStatus, setSelectedStatus] = useState<CardStatus>('idea');
 
-  // Make the entire board droppable with extended area
-  const { setNodeRef, isOver } = useDroppable({
-    id: 'kanban-board',
-    data: {
-      accepts: ['card'],
-      type: 'board'
-    }
-  });
-
   const columns = [
     { id: 'idea' as const, title: 'Idea', color: '#6366f1' },
     { id: 'in_progress' as const, title: 'In Progress', color: '#f59e0b' },
@@ -49,7 +39,7 @@ const KanbanBoard: React.FC<KanbanBoardProps> = ({
   };
 
   return (
-    <div className="kanban-board" ref={setNodeRef}>
+    <div className="kanban-board">
       <div className="board-header">
         <button 
           className="add-card-btn"
@@ -59,7 +49,7 @@ const KanbanBoard: React.FC<KanbanBoardProps> = ({
         </button>
       </div>
       
-      <div className={`board-columns ${isOver ? 'dragging-over' : ''}`}>
+      <div className="board-columns">
         {columns.map(column => (
           <Column
             key={column.id}
