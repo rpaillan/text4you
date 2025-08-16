@@ -50,17 +50,6 @@ const Card: React.FC<CardProps> = ({ card, onUpdate, onDelete, onEdit }) => {
         {...attributes}
         className={`card ${isDragging ? 'dragging' : ''}`}
       >
-        {isDragging && (
-          <div className="card-placeholder">
-            <div className="placeholder-content">
-              <div className="placeholder-priority"></div>
-              <div className="placeholder-title"></div>
-              <div className="placeholder-description"></div>
-              <div className="placeholder-footer"></div>
-            </div>
-          </div>
-        )}
-        
         <div className="card-header">
           <div className="card-priority">
             <span 

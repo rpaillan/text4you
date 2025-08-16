@@ -70,3 +70,64 @@
     border: 2px dashed #6366f1;
   }
 }
+
+// Drop preview placeholder styles
+.drop-preview-placeholder {
+  background: rgba(99, 102, 241, 0.1);
+  border: 2px dashed #6366f1;
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 120px;
+  animation: dropPreviewPulse 1.5s ease-in-out infinite;
+  
+  .placeholder-content {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    align-items: center;
+    
+    .placeholder-priority {
+      width: 8px;
+      height: 8px;
+      background: #6366f1;
+      border-radius: 50%;
+    }
+    
+    .placeholder-title {
+      width: 80%;
+      height: 1rem;
+      background: #6366f1;
+      border-radius: 4px;
+    }
+    
+    .placeholder-description {
+      width: 60%;
+      height: 0.75rem;
+      background: #6366f1;
+      border-radius: 4px;
+    }
+    
+    .placeholder-footer {
+      width: 40%;
+      height: 0.75rem;
+      background: #6366f1;
+      border-radius: 4px;
+    }
+  }
+}
+
+// Animation for the drop preview placeholder
+@keyframes dropPreviewPulse {
+  0%, 100% {
+    opacity: 0.6;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.02);
+  }
+}

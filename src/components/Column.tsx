@@ -27,7 +27,7 @@ const Column: React.FC<ColumnProps> = ({
   onEditCard
 }) => {
   // Add back useDroppable for individual columns to accept drops
-  const { setNodeRef, isOver } = useDroppable({
+  const { setNodeRef, isOver, active } = useDroppable({
     id: id,
     data: {
       accepts: ['card'],
@@ -36,6 +36,9 @@ const Column: React.FC<ColumnProps> = ({
       priority: 'high' // Higher priority than board
     }
   });
+  
+  // Determine if we should show the drop preview and where
+  const shouldShowDropPreview = isOver && active && active.data?.current?.type === 'card';
   
   return (
     <div className="column">
@@ -66,6 +69,18 @@ const Column: React.FC<ColumnProps> = ({
               onEdit={onEditCard}
             />
           ))}
+          
+          {/* Smart drop preview placeholder - shows at the end when dragging over */}
+          {shouldShowDropPreview && (
+            <div className="drop-preview-placeholder">
+              <div className="placeholder-content">
+                <div className="placeholder-priority"></div>
+                <div className="placeholder-title"></div>
+                <div className="placeholder-description"></div>
+                <div className="placeholder-footer"></div>
+              </div>
+            </div>
+          )}
         </SortableContext>
       </div>
     </div>
