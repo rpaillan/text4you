@@ -1,5 +1,4 @@
 import React from 'react';
-import { useDroppable } from '@dnd-kit/core';
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import Card from './Card';
 import { Card as CardType, CardStatus, CreateCardData } from '../types/index.js';
@@ -26,10 +25,8 @@ const Column: React.FC<ColumnProps> = ({
   onDeleteCard,
   onEditCard
 }) => {
-  const { setNodeRef, isOver } = useDroppable({
-    id: id,
-  });
-
+  // Remove useDroppable since we're handling it at the board level
+  
   return (
     <div className="column">
       <div className="column-header" style={{ borderTopColor: color }}>
@@ -44,10 +41,7 @@ const Column: React.FC<ColumnProps> = ({
         </button>
       </div>
       
-      <div
-        ref={setNodeRef}
-        className={`column-content ${isOver ? 'dragging-over' : ''}`}
-      >
+      <div className="column-content">
         <SortableContext items={cards.map(card => card.id)} strategy={verticalListSortingStrategy}>
           {cards.map((card, index) => (
             <Card

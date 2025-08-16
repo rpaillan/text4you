@@ -46,7 +46,7 @@ function App(): JSX.Element {
     
     if (!activeCard) return;
     
-    // Check if we're dropping on a column or a card
+    // Check if we're dropping on a column, the board, or a card
     if (over.id === 'idea' || over.id === 'in_progress' || over.id === 'done') {
       // Dropping on a column - move card to that column
       const targetStatus = over.id as CardStatus;
@@ -79,6 +79,10 @@ function App(): JSX.Element {
         // Revert the change on error
         fetchCards();
       }
+    } else if (over.id === 'kanban-board') {
+      // Dropping on the board area - keep card in current column
+      // This prevents the drag from resetting when leaving a column
+      return;
     } else {
       // Dropping on another card - reorder within the same column
       const overId = typeof over.id === 'string' ? parseInt(over.id) : over.id;
