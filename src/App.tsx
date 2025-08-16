@@ -3,7 +3,7 @@ import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, us
 import { arrayMove } from '@dnd-kit/sortable';
 import KanbanBoard from './components/KanbanBoard';
 import EditCardModal from './components/EditCardModal';
-import { Card } from './types/index.js';
+import { Card, CardStatus } from './types/index.js';
 import './App.scss';
 
 function App(): JSX.Element {
@@ -42,30 +42,24 @@ function App(): JSX.Element {
     if (!over || active.id === over.id) return;
 
     const activeId = typeof active.id === 'string' ? parseInt(active.id) : active.id;
-    const overId = typeof over.id === 'string' ? parseInt(over.id) : over.id;
-
     const activeCard = cards.find(card => card.id === activeId);
-    const overCard = cards.find(card => card.id === overId);
     
-    if (!activeCard || !overCard) return;
+    if (!activeCard) return;
     
-    if (activeCard.status === overCard.status) {
-      // Same column, just reorder
-      const columnCards = cards.filter(card => card.status === activeCard.status);
-      const oldIndex = columnCards.findIndex(card => card.id === activeId);
-      const newIndex = columnCards.findIndex(card => card.id === overId);
+    // Check if we're dropping on a column or a card
+    if (over.id === 'idea' || over.id === 'in_progress' || over.id === 'done') {
+      // Dropping on a column - move card to that column
+      const targetStatus = over.id as CardStatus;
       
-      const newCards = arrayMove(cards, oldIndex, newIndex);
-      setCards(newCards);
-    } else {
-      // Different column, update status
+      if (activeCard.status === targetStatus) return; // Already in the same column
+      
       try {
         const response = await fetch(`/api/cards/${activeId}/status`, {
           method: 'PATCH',
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ status: overCard.status }),
+          body: JSON.stringify({ status: targetStatus }),
         });
 
         if (!response.ok) {
@@ -76,7 +70,7 @@ function App(): JSX.Element {
         setCards(prevCards =>
           prevCards.map(card =>
             card.id === activeId
-              ? { ...card, status: overCard.status }
+              ? { ...card, status: targetStatus }
               : card
           )
         );
@@ -85,6 +79,20 @@ function App(): JSX.Element {
         // Revert the change on error
         fetchCards();
       }
+    } else {
+      // Dropping on another card - reorder within the same column
+      const overId = typeof over.id === 'string' ? parseInt(over.id) : over.id;
+      const overCard = cards.find(card => card.id === overId);
+      
+      if (!overCard || activeCard.status !== overCard.status) return;
+      
+      // Same column, just reorder
+      const columnCards = cards.filter(card => card.status === activeCard.status);
+      const oldIndex = columnCards.findIndex(card => card.id === activeId);
+      const newIndex = columnCards.findIndex(card => card.id === overId);
+      
+      const newCards = arrayMove(cards, oldIndex, newIndex);
+      setCards(newCards);
     }
   };
 

@@ -2,12 +2,15 @@
   background: white;
   border-radius: 12px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-  overflow: hidden;
+  // Remove overflow: hidden to allow drag animation to extend beyond column bounds
   transition: all 0.3s ease;
+  position: relative; // Add relative positioning for proper z-index context
+  z-index: 1; // Set base z-index for columns
   
   &:hover {
     transform: translateY(-2px);
     box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+    z-index: 2; // Slightly higher z-index on hover
   }
 }
 
@@ -60,6 +63,7 @@
   padding: 1rem;
   min-height: 200px;
   background: #f8fafc;
+  position: relative; // Ensure proper stacking context
   
   &.dragging-over {
     background: #e0e7ff;

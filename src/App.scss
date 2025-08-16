@@ -1,6 +1,8 @@
 .app {
   min-height: 100vh;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  position: relative; // Ensure proper stacking context
+  z-index: 1; // Base z-index for the app
 }
 
 .app-header {

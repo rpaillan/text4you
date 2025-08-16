@@ -7,6 +7,7 @@
   border: 1px solid #e2e8f0;
   transition: all 0.3s ease;
   cursor: grab;
+  position: relative; // Add relative positioning
   
   &:hover {
     transform: translateY(-2px);
@@ -20,8 +21,16 @@
   &.dragging {
     transform: rotate(5deg);
     box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+    z-index: 9999; // Much higher z-index to appear above all columns
+    position: relative; // Maintain positioning context
   }
   
+  // Additional rule to ensure dragged cards stay on top
+  &[data-dragging="true"] {
+    z-index: 9999 !important;
+    position: relative !important;
+  }
+
   &:last-child {
     margin-bottom: 0;
   }

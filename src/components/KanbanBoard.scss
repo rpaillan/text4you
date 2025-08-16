@@ -2,6 +2,8 @@
   padding: 2rem;
   max-width: 1400px;
   margin: 0 auto;
+  position: relative; // Ensure proper stacking context
+  z-index: 1; // Base z-index for the board
 }
 
 .board-header {
@@ -37,6 +39,7 @@
   grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
   gap: 2rem;
   align-items: start;
+  position: relative; // Ensure proper stacking context
 }
 
 @media (max-width: 768px) {
