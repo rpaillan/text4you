@@ -9,13 +9,15 @@ interface KanbanBoardProps {
   onAddCard: (cardData: CreateCardData) => Promise<void>;
   onUpdateCard: (id: number, cardData: Partial<CreateCardData>) => Promise<void>;
   onDeleteCard: (id: number) => Promise<void>;
+  onEditCard: (card: Card) => void;
 }
 
 const KanbanBoard: React.FC<KanbanBoardProps> = ({ 
   cards, 
   onAddCard, 
   onUpdateCard, 
-  onDeleteCard 
+  onDeleteCard,
+  onEditCard
 }) => {
   const [showAddModal, setShowAddModal] = useState<boolean>(false);
   const [selectedStatus, setSelectedStatus] = useState<CardStatus>('idea');
@@ -58,6 +60,7 @@ const KanbanBoard: React.FC<KanbanBoardProps> = ({
             onAddCard={() => openAddModal(column.id)}
             onUpdateCard={onUpdateCard}
             onDeleteCard={onDeleteCard}
+            onEditCard={onEditCard}
           />
         ))}
       </div>

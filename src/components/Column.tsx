@@ -13,6 +13,7 @@ interface ColumnProps {
   onAddCard: () => void;
   onUpdateCard: (id: number, cardData: Partial<CreateCardData>) => Promise<void>;
   onDeleteCard: (id: number) => Promise<void>;
+  onEditCard: (card: CardType) => void;
 }
 
 const Column: React.FC<ColumnProps> = ({ 
@@ -22,7 +23,8 @@ const Column: React.FC<ColumnProps> = ({
   cards, 
   onAddCard, 
   onUpdateCard, 
-  onDeleteCard 
+  onDeleteCard,
+  onEditCard
 }) => {
   const { setNodeRef, isOver } = useDroppable({
     id: id,
@@ -54,6 +56,7 @@ const Column: React.FC<ColumnProps> = ({
               index={index}
               onUpdate={onUpdateCard}
               onDelete={onDeleteCard}
+              onEdit={onEditCard}
             />
           ))}
         </SortableContext>

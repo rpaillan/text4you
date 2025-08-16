@@ -1,7 +1,6 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import EditCardModal from './EditCardModal';
 import { Card as CardType, Priority, CreateCardData } from '../types/index.js';
 import './Card.scss';
 
@@ -10,10 +9,11 @@ interface CardProps {
   index: number;
   onUpdate: (id: number, cardData: Partial<CreateCardData>) => Promise<void>;
   onDelete: (id: number) => Promise<void>;
+  onEdit: (card: CardType) => void;
 }
 
-const Card: React.FC<CardProps> = ({ card, onUpdate, onDelete }) => {
-  const [showEditModal, setShowEditModal] = useState<boolean>(false);
+const Card: React.FC<CardProps> = ({ card, onUpdate, onDelete, onEdit }) => {
+  // Remove the local showEditModal state
   
   const {
     attributes,
@@ -48,7 +48,6 @@ const Card: React.FC<CardProps> = ({ card, onUpdate, onDelete }) => {
         ref={setNodeRef}
         style={style}
         {...attributes}
-        {...listeners}
         className={`card ${isDragging ? 'dragging' : ''}`}
       >
         <div className="card-header">
@@ -59,15 +58,15 @@ const Card: React.FC<CardProps> = ({ card, onUpdate, onDelete }) => {
             />
             {card.priority}
           </div>
-          <div className="card-actions" onClick={(e) => e.stopPropagation()}>
+          <div className="card-actions">
             <button 
               className="edit-btn"
               onClick={(e) => {
                 e.stopPropagation();
-                setShowEditModal(true);
+                onEdit(card);
               }}
             >
-              ✏️
+              ✏️ 
             </button>
             <button 
               className="delete-btn"
@@ -81,29 +80,25 @@ const Card: React.FC<CardProps> = ({ card, onUpdate, onDelete }) => {
           </div>
         </div>
         
-        <h4 className="card-title">{card.title}</h4>
-        
-        {card.description && (
-          <p className="card-description">{card.description}</p>
-        )}
-        
-        <div className="card-footer">
-          <span className="card-date">
-            Created: {formatDate(card.created_at)}
-          </span>
+        <div 
+          className="card-drag-handle"
+          {...listeners}
+        >
+          <h4 className="card-title">{card.title}</h4>
+          
+          {card.description && (
+            <p className="card-description">{card.description}</p>
+          )}
+          
+          <div className="card-footer">
+            <span className="card-date">
+              Created: {formatDate(card.created_at)}
+            </span>
+          </div>
         </div>
       </div>
 
-      {showEditModal && (
-        <EditCardModal
-          card={card}
-          onClose={() => setShowEditModal(false)}
-          onSubmit={(updatedData) => {
-            onUpdate(card.id, updatedData);
-            setShowEditModal(false);
-          }}
-        />
-      )}
+      {/* Remove the local EditCardModal component */}
     </>
   );
 };
