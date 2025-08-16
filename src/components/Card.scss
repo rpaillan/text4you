@@ -19,10 +19,16 @@
   }
   
   &.dragging {
-    transform: rotate(5deg);
+    transform: none; // Remove rotation
     box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
     z-index: 9999; // Much higher z-index to appear above all columns
     position: relative; // Maintain positioning context
+    
+    // Hide the actual card content when dragging
+    .card-header,
+    .card-drag-handle {
+      opacity: 0;
+    }
   }
   
   // Additional rule to ensure dragged cards stay on top
@@ -33,6 +39,57 @@
 
   &:last-child {
     margin-bottom: 0;
+  }
+}
+
+// Card placeholder styles
+.card-placeholder {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(99, 102, 241, 0.1);
+  border: 2px dashed #6366f1;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1;
+  
+  .placeholder-content {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    align-items: center;
+    
+    .placeholder-priority {
+      width: 8px;
+      height: 8px;
+      background: #6366f1;
+      border-radius: 50%;
+    }
+    
+    .placeholder-title {
+      width: 80%;
+      height: 1rem;
+      background: #6366f1;
+      border-radius: 4px;
+    }
+    
+    .placeholder-description {
+      width: 60%;
+      height: 0.75rem;
+      background: #6366f1;
+      border-radius: 4px;
+    }
+    
+    .placeholder-footer {
+      width: 40%;
+      height: 0.75rem;
+      background: #6366f1;
+      border-radius: 4px;
+    }
   }
 }
 

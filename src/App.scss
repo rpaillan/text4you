@@ -25,7 +25,6 @@
 .dragged-card-overlay {
   // Inherit all card styles from the main Card.scss
   // The card class will provide the base styling
-  transform: rotate(5deg); // Add the same rotation as dragging cards
   box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3); // Enhanced shadow for dragged state
   z-index: 9999;
   cursor: grabbing;
