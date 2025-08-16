@@ -1,0 +1,51 @@
+.kanban-board {
+  padding: 2rem;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.board-header {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 2rem;
+  
+  .add-card-btn {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 25px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+    }
+    
+    &:active {
+      transform: translateY(0);
+    }
+  }
+}
+
+.board-columns {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: 2rem;
+  align-items: start;
+}
+
+@media (max-width: 768px) {
+  .kanban-board {
+    padding: 1rem;
+  }
+  
+  .board-columns {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+}
