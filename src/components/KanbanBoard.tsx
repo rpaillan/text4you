@@ -8,6 +8,9 @@ import {
 } from '../types/index.js';
 import './KanbanBoard.scss';
 
+export const NEW_CARD_TITLE = 'Click to edit title...';
+export const NEW_CARD_DESCRIPTION = 'Click to add description...';
+
 interface KanbanBoardProps {
   cards: CardType[];
   onAddCard: (_cardData: CreateCardData) => Promise<void>;
@@ -26,9 +29,13 @@ const KanbanBoard: React.FC<KanbanBoardProps> = ({
 }) => {
   const [tempCard, setTempCard] = useState<CardType | null>(null);
 
-  const columns : Column[] = [
-    { id: 'in_progress' as const, title: "Work in Motion 🔄", color: '#f59e0b' },
-    { id: 'idea' as const, title: "Brain Blast 💡", color: '#6366f1' },
+  const columns: Column[] = [
+    {
+      id: 'in_progress' as const,
+      title: 'Work in Motion 🔄',
+      color: '#f59e0b',
+    },
+    { id: 'idea' as const, title: 'Brain Blast 💡', color: '#6366f1' },
     { id: 'done' as const, title: 'Done', color: '#10b981' },
   ];
 
@@ -36,8 +43,8 @@ const KanbanBoard: React.FC<KanbanBoardProps> = ({
     // Create a temporary card with placeholder content
     const newTempCard: CardType = {
       id: -1, // Temporary ID (negative to distinguish from real cards)
-      title: 'Click to edit title...',
-      description: 'Click to add description...',
+      title: NEW_CARD_TITLE,
+      description: NEW_CARD_DESCRIPTION,
       status,
       priority: 'medium',
       created_at: new Date().toISOString(),
@@ -57,30 +64,24 @@ const KanbanBoard: React.FC<KanbanBoardProps> = ({
     const title = _cardData.title || tempCard.title;
     const description = _cardData.description || tempCard.description;
 
-    if (
-      title === 'Click to edit title...' &&
-      description === 'Click to add description...'
-    ) {
+    if (title === NEW_CARD_TITLE && description === NEW_CARD_DESCRIPTION) {
       setTempCard(null);
       return;
     }
 
     // If title is still placeholder but description was changed, use empty title
-    const finalTitle = title === 'Click to edit title...' ? '' : title;
+    const finalTitle = title === NEW_CARD_TITLE ? '' : title;
     const finalDescription =
-      description === 'Click to add description...' ? undefined : description;
+      description === NEW_CARD_DESCRIPTION ? undefined : description;
 
-    // Only save if we have a meaningful title
-    if (finalTitle.trim()) {
-      const createData: CreateCardData = {
-        title: finalTitle,
-        description: finalDescription,
-        status: tempCard.status,
-        priority: _cardData.priority || tempCard.priority,
-      };
+    const createData: CreateCardData = {
+      title: finalTitle,
+      description: finalDescription,
+      status: tempCard.status,
+      priority: _cardData.priority || tempCard.priority,
+    };
 
-      await onAddCard(createData);
-    }
+    await onAddCard(createData);
 
     setTempCard(null);
   };

@@ -216,6 +216,17 @@
       outline: none;
       background: var(--color-bg-input);
     }
+
+    &:empty::before {
+      content: attr(data-placeholder);
+      color: var(--color-text-placeholder);
+      font-style: italic;
+    }
+  }
+
+  &.empty-title:not([contenteditable='true']) {
+    color: var(--color-text-muted);
+    font-style: italic;
   }
 
   // Special styling for placeholder text in temporary cards

@@ -8,6 +8,7 @@ import {
   Column,
 } from '../types/index.js';
 import './Card.scss';
+import { NEW_CARD_TITLE, NEW_CARD_DESCRIPTION } from './KanbanBoard';
 
 interface CardProps {
   columns: Column[];
@@ -46,6 +47,7 @@ const Card: React.FC<CardProps> = ({ columns, card, onUpdate, onDelete }) => {
 
   const handleSaveDescription = async () => {
     // lets try to store html content instead of plain text.
+
     if (!descriptionRef.current) return;
 
     // Convert HTML content to plain text with newlines
@@ -100,6 +102,10 @@ const Card: React.FC<CardProps> = ({ columns, card, onUpdate, onDelete }) => {
   // Effect to focus and select content when editing starts
   useEffect(() => {
     if (isEditingTitle && titleRef.current) {
+      if (card.title === NEW_CARD_TITLE) {
+        titleRef.current.innerHTML = '';
+      }
+
       titleRef.current.focus();
       // Select all text
       const range = document.createRange();
@@ -113,9 +119,7 @@ const Card: React.FC<CardProps> = ({ columns, card, onUpdate, onDelete }) => {
   useEffect(() => {
     if (isEditingDescription && descriptionRef.current) {
       // If the content is placeholder text, clear it
-      if (
-        descriptionRef.current.textContent === 'Click to add description...'
-      ) {
+      if (descriptionRef.current.textContent === NEW_CARD_DESCRIPTION) {
         descriptionRef.current.innerHTML = '';
       }
 
@@ -236,7 +240,7 @@ const Card: React.FC<CardProps> = ({ columns, card, onUpdate, onDelete }) => {
               </button>
               {showStatusDropdown && (
                 <div className='status-dropdown'>
-                  {columns.map((column) => (
+                  {columns.map(column => (
                     <div
                       key={column.id}
                       className={`status-option ${card.status === column.id ? 'current' : ''}`}
@@ -250,9 +254,8 @@ const Card: React.FC<CardProps> = ({ columns, card, onUpdate, onDelete }) => {
             </div>
             <button className='delete-btn' onClick={handleDeleteClick}>
               🗑️
-              </button>
+            </button>
           </div>
-  
         </div>
 
         <div className='card-content'>
@@ -261,22 +264,27 @@ const Card: React.FC<CardProps> = ({ columns, card, onUpdate, onDelete }) => {
             <div
               className={`title-container ${isEditingTitle ? 'editing' : ''}`}
             >
-              <h4
+              <div
                 ref={titleRef}
-                className='card-title'
+                className={`card-title ${!card.title ? 'empty-title' : ''}`}
                 contentEditable={isEditingTitle}
                 suppressContentEditableWarning={true}
                 onKeyDown={handleTitleKeyPress}
                 onBlur={handleSaveTitle}
                 onClick={() => !isEditingTitle && setIsEditingTitle(true)}
+                data-placeholder={NEW_CARD_TITLE}
                 title={
                   isEditingTitle
                     ? 'Enter to save, Esc to cancel'
                     : 'Click to edit'
                 }
               >
-                {card.title}
-              </h4>
+                {card.title
+                  ? card.title
+                  : !isEditingTitle
+                    ? NEW_CARD_TITLE
+                    : ''}
+              </div>
             </div>
           </div>
 
@@ -301,12 +309,12 @@ const Card: React.FC<CardProps> = ({ columns, card, onUpdate, onDelete }) => {
                     : 'Click to edit'
                 }
                 style={{ whiteSpace: 'pre-wrap' }}
-                data-placeholder='Click to add description...'
+                data-placeholder={NEW_CARD_DESCRIPTION}
                 dangerouslySetInnerHTML={{
                   __html: card.description
                     ? card.description.replace(/\n/g, '<br>')
                     : !isEditingDescription
-                      ? 'Click to add description...'
+                      ? NEW_CARD_DESCRIPTION
                       : '',
                 }}
               />
