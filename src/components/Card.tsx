@@ -229,24 +229,6 @@ const Card: React.FC<CardProps> = ({ card, onUpdate, onDelete }) => {
               >
                 {card.title}
               </h4>
-              {isEditingTitle && (
-                <div className='inline-edit-actions'>
-                  <button
-                    className='save-btn'
-                    onClick={handleSaveTitle}
-                    title='Save (Enter)'
-                  >
-                    ✓
-                  </button>
-                  <button
-                    className='cancel-btn'
-                    onClick={handleCancelTitle}
-                    title='Cancel (Esc)'
-                  >
-                    ✕
-                  </button>
-                </div>
-              )}
             </div>
           </div>
 
@@ -280,25 +262,6 @@ const Card: React.FC<CardProps> = ({ card, onUpdate, onDelete }) => {
                       : '',
                 }}
               />
-
-              {isEditingDescription && (
-                <div className='inline-edit-actions'>
-                  <button
-                    className='save-btn'
-                    onClick={handleSaveDescription}
-                    title='Save (Ctrl+Enter)'
-                  >
-                    ✓
-                  </button>
-                  <button
-                    className='cancel-btn'
-                    onClick={handleCancelDescription}
-                    title='Cancel (Esc)'
-                  >
-                    ✕
-                  </button>
-                </div>
-              )}
             </div>
           </div>
 

@@ -25,7 +25,7 @@
   display: flex;
   align-items: center;
   gap: 0.25rem;
-  font-size: 0.7rem;
+  font-size: 0.7rem;  
   font-weight: 500;
   text-transform: uppercase;
   color: #715a5a;
@@ -72,7 +72,6 @@
       outline: 1px solid #715a5a;
       outline-offset: 2px;
       border-radius: 2px;
-      padding: 0.125rem 0.25rem;
       background: #44444e;
     }
   }
@@ -88,6 +87,7 @@
   transition: opacity 0.15s ease;
   flex: 1;
   min-height: 1.1em;
+  padding: 0.125rem 0.25rem;
 
   &:hover:not([contenteditable='true']) {
     opacity: 0.8;
@@ -124,7 +124,6 @@
       outline: 1px solid #715a5a;
       outline-offset: 2px;
       border-radius: 2px;
-      padding: 0.25rem 0.375rem;
       background: #44444e;
     }
   }
@@ -141,6 +140,7 @@
   white-space: pre-wrap;
   word-wrap: break-word;
   flex: 1;
+  padding: 0.25rem 0.375rem;
 
   &:hover:not([contenteditable='true']) {
     opacity: 0.8;
@@ -208,59 +208,6 @@
     resize: vertical;
     font-size: 0.8rem;
     line-height: 1.4;
-  }
-
-  .inline-edit-actions {
-    display: flex;
-    gap: 0.25rem;
-    flex-shrink: 0;
-    align-self: flex-start;
-    margin-top: 0.125rem; // Slight alignment adjustment
-
-    button {
-      background: #715a5a;
-      border: none;
-      border-radius: 2px;
-      color: #d3dad9;
-      width: 1.25rem;
-      height: 1.25rem;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      font-size: 0.65rem;
-      transition: background 0.15s ease;
-
-      &:hover {
-        background: #8a7070;
-      }
-
-      &.save-btn {
-        background: #715a5a;
-
-        &:hover {
-          background: #8a7070;
-        }
-      }
-
-      &.cancel-btn {
-        background: #715a5a;
-        opacity: 0.7;
-
-        &:hover {
-          background: #8a7070;
-          opacity: 1;
-        }
-      }
-    }
-  }
-}
-
-// Special positioning for the description and title containers
-.title-container,
-.description-container {
-  .inline-edit-actions {
-    margin-left: auto;
   }
 }
 
