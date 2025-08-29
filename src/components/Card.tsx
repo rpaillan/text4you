@@ -1,6 +1,4 @@
 import React from 'react';
-import { useSortable } from '@dnd-kit/sortable';
-import { CSS } from '@dnd-kit/utilities';
 import { Card as CardType, Priority, CreateCardData } from '../types/index.js';
 import './Card.scss';
 
@@ -12,23 +10,7 @@ interface CardProps {
   onEdit: (card: CardType) => void;
 }
 
-const Card: React.FC<CardProps> = ({ card, onUpdate, onDelete, onEdit }) => {
-  // Remove the local showEditModal state
-  
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    transform,
-    transition,
-    isDragging,
-  } = useSortable({ 
-    id: card.id,
-    data: {
-      type: 'card',
-      card: card
-    }
-  });
+const Card: React.FC<CardProps> = ({ card, onDelete, onEdit }) => {
 
   const getPriorityColor = (priority: Priority): string => {
     switch (priority) {
@@ -43,19 +25,9 @@ const Card: React.FC<CardProps> = ({ card, onUpdate, onDelete, onEdit }) => {
     return new Date(dateString).toLocaleDateString();
   };
 
-  const style = {
-    transform: CSS.Transform.toString(transform),
-    transition,
-  };
-
   return (
     <>
-      <div
-        ref={setNodeRef}
-        style={style}
-        {...attributes}
-        className={`card ${isDragging ? 'dragging' : ''}`}
-      >
+      <div className="card">
         <div className="card-header">
           <div className="card-priority">
             <span 
@@ -86,10 +58,7 @@ const Card: React.FC<CardProps> = ({ card, onUpdate, onDelete, onEdit }) => {
           </div>
         </div>
         
-        <div 
-          className="card-drag-handle"
-          {...listeners}
-        >
+        <div className="card-content">
           <h4 className="card-title">{card.title}</h4>
           
           {card.description && (

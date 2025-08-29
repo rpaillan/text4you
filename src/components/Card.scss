@@ -6,35 +6,11 @@
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   border: 1px solid #e2e8f0;
   transition: all 0.3s ease;
-  cursor: grab;
-  position: relative; // Add relative positioning
+  position: relative;
   
   &:hover {
     transform: translateY(-2px);
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
-  }
-  
-  &:active {
-    cursor: grabbing;
-  }
-  
-  &.dragging {
-    transform: none; // Remove rotation
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
-    z-index: 9999; // Much higher z-index to appear above all columns
-    position: relative; // Maintain positioning context
-    
-    // Hide the actual card content when dragging
-    .card-header,
-    .card-drag-handle {
-      opacity: 0;
-    }
-  }
-  
-  // Additional rule to ensure dragged cards stay on top
-  &[data-dragging="true"] {
-    z-index: 9999 !important;
-    position: relative !important;
   }
 
   &:last-child {
@@ -119,10 +95,6 @@
   }
 }
 
-.card-drag-handle {
-  cursor: grab;
-  
-  &:active {
-    cursor: grabbing;
-  }
+.card-content {
+  // Content styling - cards are no longer draggable
 }

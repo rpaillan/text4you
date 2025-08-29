@@ -1,15 +1,15 @@
 import React, { useState } from 'react';
-import Column from './Column';
+import Card from './Card';
 import AddCardModal from './AddCardModal';
-import { Card, CardStatus, CreateCardData } from '../types/index.js';
+import { Card as CardType, CardStatus, CreateCardData } from '../types/index.js';
 import './KanbanBoard.scss';
 
 interface KanbanBoardProps {
-  cards: Card[];
+  cards: CardType[];
   onAddCard: (cardData: CreateCardData) => Promise<void>;
   onUpdateCard: (id: number, cardData: Partial<CreateCardData>) => Promise<void>;
   onDeleteCard: (id: number) => Promise<void>;
-  onEditCard: (card: Card) => void;
+  onEditCard: (card: CardType) => void;
 }
 
 const KanbanBoard: React.FC<KanbanBoardProps> = ({ 
@@ -49,20 +49,49 @@ const KanbanBoard: React.FC<KanbanBoardProps> = ({
         </button>
       </div>
       
-      <div className="board-columns">
-        {columns.map(column => (
-          <Column
-            key={column.id}
-            id={column.id}
-            title={column.title}
-            color={column.color}
-            cards={cards.filter(card => card.status === column.id)}
-            onAddCard={() => openAddModal(column.id)}
-            onUpdateCard={onUpdateCard}
-            onDeleteCard={onDeleteCard}
-            onEditCard={onEditCard}
-          />
-        ))}
+      <div className="vertical-card-list">
+        {columns.map(column => {
+          const columnCards = cards.filter(card => card.status === column.id);
+          
+          if (columnCards.length === 0) return null;
+          
+          return (
+            <div key={column.id} className="status-section">
+              <div className="status-header" style={{ borderLeftColor: column.color }}>
+                <h2 className="status-title">{column.title}</h2>
+                <span className="status-count">{columnCards.length}</span>
+                <button 
+                  className="add-status-card-btn"
+                  onClick={() => openAddModal(column.id)}
+                  style={{ backgroundColor: column.color }}
+                >
+                  + Add to {column.title}
+                </button>
+              </div>
+              
+              <div className="status-cards">
+                {columnCards.map((card, index) => (
+                  <Card
+                    key={card.id}
+                    card={card}
+                    index={index}
+                    onUpdate={onUpdateCard}
+                    onDelete={onDeleteCard}
+                    onEdit={onEditCard}
+                  />
+                ))}
+              </div>
+            </div>
+          );
+        })}
+        
+        {/* Show message if no cards exist */}
+        {cards.length === 0 && (
+          <div className="empty-state">
+            <h3>No cards yet</h3>
+            <p>Click "Add Card" to create your first task!</p>
+          </div>
+        )}
       </div>
 
       {showAddModal && (
