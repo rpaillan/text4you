@@ -6,15 +6,20 @@ import './Card.scss';
 interface CardProps {
   card: CardType;
   index: number;
-  onUpdate: (id: number, cardData: Partial<CreateCardData>) => Promise<void>;
-  onDelete: (id: number) => Promise<void>;
-  onEdit: (card: CardType) => void;
+  onUpdate: (_id: number, _cardData: Partial<CreateCardData>) => Promise<void>;
+  onDelete: (_id: number) => Promise<void>;
+  onEdit: (_card: CardType) => void;
 }
 
-const Card: React.FC<CardProps> = ({ card, onUpdate, onDelete, onEdit }) => {
+const Card: React.FC<CardProps> = ({
+  card,
+  onUpdate,
+  onDelete,
+  onEdit: _onEdit,
+}) => {
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [isEditingDescription, setIsEditingDescription] = useState(false);
-  
+
   const titleRef = useRef<HTMLHeadingElement>(null);
   const descriptionRef = useRef<HTMLDivElement>(null);
   const originalTitle = useRef<string>(card.title);
@@ -37,10 +42,10 @@ const Card: React.FC<CardProps> = ({ card, onUpdate, onDelete, onEdit }) => {
 
   const handleSaveDescription = async () => {
     if (!descriptionRef.current) return;
-    
+
     // Convert HTML content to plain text with newlines
     const htmlContent = descriptionRef.current.innerHTML;
-    
+
     // Replace <br> tags with newlines and decode HTML entities
     const textWithNewlines = htmlContent
       .replace(/<br\s*\/?>/gi, '\n')
@@ -50,12 +55,12 @@ const Card: React.FC<CardProps> = ({ card, onUpdate, onDelete, onEdit }) => {
       .replace(/&lt;/g, '<')
       .replace(/&gt;/g, '>')
       .replace(/&amp;/g, '&');
-    
+
     // Remove any remaining HTML tags
     const tempDiv = document.createElement('div');
     tempDiv.innerHTML = textWithNewlines;
     const plainText = tempDiv.textContent || tempDiv.innerText || '';
-    
+
     const trimmedDescription = plainText.replace(/^\s+|\s+$/g, '');
     if (trimmedDescription !== (card.description || '')) {
       await onUpdate(card.id, { description: trimmedDescription || undefined });
@@ -119,10 +124,12 @@ const Card: React.FC<CardProps> = ({ card, onUpdate, onDelete, onEdit }) => {
   useEffect(() => {
     if (isEditingDescription && descriptionRef.current) {
       // If the content is placeholder text, clear it
-      if (descriptionRef.current.textContent === 'Click to add description...') {
+      if (
+        descriptionRef.current.textContent === 'Click to add description...'
+      ) {
         descriptionRef.current.innerHTML = '';
       }
-      
+
       descriptionRef.current.focus();
       // Place cursor at end
       const range = document.createRange();
@@ -136,10 +143,14 @@ const Card: React.FC<CardProps> = ({ card, onUpdate, onDelete, onEdit }) => {
 
   const getPriorityColor = (priority: Priority): string => {
     switch (priority) {
-      case 'high': return '#ef4444';
-      case 'medium': return '#f59e0b';
-      case 'low': return '#10b981';
-      default: return '#6b7280';
+      case 'high':
+        return '#ef4444';
+      case 'medium':
+        return '#f59e0b';
+      case 'low':
+        return '#10b981';
+      default:
+        return '#6b7280';
     }
   };
 
@@ -149,28 +160,28 @@ const Card: React.FC<CardProps> = ({ card, onUpdate, onDelete, onEdit }) => {
 
   return (
     <>
-      <div className="card">
-        <div className="card-header">
-          <div className="card-priority">
-            <span 
-              className="priority-dot"
+      <div className='card'>
+        <div className='card-header'>
+          <div className='card-priority'>
+            <span
+              className='priority-dot'
               style={{ backgroundColor: getPriorityColor(card.priority) }}
             />
             {card.priority}
           </div>
-          <div className="card-actions">
-            <button 
-              className="edit-btn"
-              onClick={(e) => {
+          <div className='card-actions'>
+            <button
+              className='edit-btn'
+              onClick={e => {
                 e.stopPropagation();
-                onEdit(card);
+                _onEdit(card);
               }}
             >
-              ✏️ 
+              ✏️
             </button>
-            <button 
-              className="delete-btn"
-              onClick={(e) => {
+            <button
+              className='delete-btn'
+              onClick={e => {
                 e.stopPropagation();
                 onDelete(card.id);
               }}
@@ -179,36 +190,42 @@ const Card: React.FC<CardProps> = ({ card, onUpdate, onDelete, onEdit }) => {
             </button>
           </div>
         </div>
-        
-        <div className="card-content">
+
+        <div className='card-content'>
           {/* Title Section */}
-          <div className="card-title-section">
-            <div className={`title-container ${isEditingTitle ? 'editing' : ''}`}>
-              <h4 
+          <div className='card-title-section'>
+            <div
+              className={`title-container ${isEditingTitle ? 'editing' : ''}`}
+            >
+              <h4
                 ref={titleRef}
-                className="card-title"
+                className='card-title'
                 contentEditable={isEditingTitle}
                 suppressContentEditableWarning={true}
                 onKeyDown={handleTitleKeyPress}
                 onBlur={handleSaveTitle}
                 onClick={() => !isEditingTitle && setIsEditingTitle(true)}
-                title={isEditingTitle ? "Enter to save, Esc to cancel" : "Click to edit"}
+                title={
+                  isEditingTitle
+                    ? 'Enter to save, Esc to cancel'
+                    : 'Click to edit'
+                }
               >
                 {card.title}
               </h4>
               {isEditingTitle && (
-                <div className="inline-edit-actions">
-                  <button 
-                    className="save-btn"
+                <div className='inline-edit-actions'>
+                  <button
+                    className='save-btn'
                     onClick={handleSaveTitle}
-                    title="Save (Enter)"
+                    title='Save (Enter)'
                   >
                     ✓
                   </button>
-                  <button 
-                    className="cancel-btn"
+                  <button
+                    className='cancel-btn'
                     onClick={handleCancelTitle}
-                    title="Cancel (Esc)"
+                    title='Cancel (Esc)'
                   >
                     ✕
                   </button>
@@ -216,41 +233,51 @@ const Card: React.FC<CardProps> = ({ card, onUpdate, onDelete, onEdit }) => {
               )}
             </div>
           </div>
-          
+
           {/* Description Section */}
-          <div className="card-description-section">
-            <div className={`description-container ${isEditingDescription ? 'editing' : ''}`}>
-              <div 
+          <div className='card-description-section'>
+            <div
+              className={`description-container ${isEditingDescription ? 'editing' : ''}`}
+            >
+              <div
                 ref={descriptionRef}
                 className={`card-description ${!card.description ? 'empty-description' : ''}`}
                 contentEditable={isEditingDescription}
                 suppressContentEditableWarning={true}
                 onKeyDown={handleDescriptionKeyPress}
                 onBlur={handleSaveDescription}
-                onClick={() => !isEditingDescription && setIsEditingDescription(true)}
-                title={isEditingDescription ? "Ctrl+Enter to save, Esc to cancel" : "Click to edit"}
+                onClick={() =>
+                  !isEditingDescription && setIsEditingDescription(true)
+                }
+                title={
+                  isEditingDescription
+                    ? 'Ctrl+Enter to save, Esc to cancel'
+                    : 'Click to edit'
+                }
                 style={{ whiteSpace: 'pre-wrap' }}
-                data-placeholder="Click to add description..."
+                data-placeholder='Click to add description...'
                 dangerouslySetInnerHTML={{
-                  __html: card.description 
+                  __html: card.description
                     ? card.description.replace(/\n/g, '<br>')
-                    : (!isEditingDescription ? 'Click to add description...' : '')
+                    : !isEditingDescription
+                      ? 'Click to add description...'
+                      : '',
                 }}
               />
-              
+
               {isEditingDescription && (
-                <div className="inline-edit-actions">
-                  <button 
-                    className="save-btn"
+                <div className='inline-edit-actions'>
+                  <button
+                    className='save-btn'
                     onClick={handleSaveDescription}
-                    title="Save (Ctrl+Enter)"
+                    title='Save (Ctrl+Enter)'
                   >
                     ✓
                   </button>
-                  <button 
-                    className="cancel-btn"
+                  <button
+                    className='cancel-btn'
                     onClick={handleCancelDescription}
-                    title="Cancel (Esc)"
+                    title='Cancel (Esc)'
                   >
                     ✕
                   </button>
@@ -258,9 +285,9 @@ const Card: React.FC<CardProps> = ({ card, onUpdate, onDelete, onEdit }) => {
               )}
             </div>
           </div>
-          
-          <div className="card-footer">
-            <span className="card-date">
+
+          <div className='card-footer'>
+            <span className='card-date'>
               Created: {formatDate(card.created_at)}
             </span>
           </div>

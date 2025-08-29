@@ -1,19 +1,14 @@
-import { useState, useEffect } from 'react';
-
+import React, { useState, useEffect } from 'react';
 
 import KanbanBoard from './components/KanbanBoard';
 
 import { Card } from './types/index.js';
 import './App.scss';
 
-function App(): JSX.Element {
+function App(): React.JSX.Element {
   const [cards, setCards] = useState<Card[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-
-
-  
-
 
   useEffect(() => {
     fetchCards();
@@ -34,9 +29,9 @@ function App(): JSX.Element {
     }
   };
 
-
-
-  const addCard = async (cardData: Omit<Card, 'id' | 'created_at' | 'updated_at'>): Promise<void> => {
+  const addCard = async (
+    cardData: Omit<Card, 'id' | 'created_at' | 'updated_at'>
+  ): Promise<void> => {
     try {
       const response = await fetch('/api/cards', {
         method: 'POST',
@@ -57,7 +52,10 @@ function App(): JSX.Element {
     }
   };
 
-  const updateCard = async (id: number, cardData: Partial<Omit<Card, 'id' | 'created_at' | 'updated_at'>>): Promise<void> => {
+  const updateCard = async (
+    id: number,
+    cardData: Partial<Omit<Card, 'id' | 'created_at' | 'updated_at'>>
+  ): Promise<void> => {
     try {
       const response = await fetch(`/api/cards/${id}`, {
         method: 'PUT',
@@ -73,9 +71,7 @@ function App(): JSX.Element {
 
       const updatedCard: Card = await response.json();
       setCards(prevCards =>
-        prevCards.map(card =>
-          card.id === id ? updatedCard : card
-        )
+        prevCards.map(card => (card.id === id ? updatedCard : card))
       );
       // Card updated successfully
     } catch (err) {
@@ -100,16 +96,16 @@ function App(): JSX.Element {
   };
 
   if (loading) {
-    return <div className="loading">Loading...</div>;
+    return <div className='loading'>Loading...</div>;
   }
 
   if (error) {
-    return <div className="error">Error: {error}</div>;
+    return <div className='error'>Error: {error}</div>;
   }
 
   return (
-    <div className="app">
-      <header className="app-header">
+    <div className='app'>
+      <header className='app-header'>
         <h1>Kanban Board</h1>
       </header>
       <KanbanBoard
@@ -118,8 +114,6 @@ function App(): JSX.Element {
         onUpdateCard={updateCard}
         onDeleteCard={deleteCard}
       />
-      
-
     </div>
   );
 }

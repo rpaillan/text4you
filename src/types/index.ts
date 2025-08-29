@@ -12,8 +12,6 @@ export type CardStatus = 'idea' | 'in_progress' | 'done';
 
 export type Priority = 'low' | 'medium' | 'high';
 
-
-
 export interface CreateCardData {
   title: string;
   description?: string;
@@ -33,5 +31,3 @@ export interface ApiResponse<T> {
   error?: string;
   message?: string;
 }
-
-
