@@ -1,12 +1,15 @@
 .card {
-  background: #37353e;
-  border: 1px solid #715a5a;
-  border-radius: 2px;
-  padding: 0.75rem;
-  transition: border-color 0.15s ease;
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border-primary);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-lg);
+  transition: var(--transition-all);
+  box-shadow: var(--shadow-md);
 
   &:hover {
-    border-color: #8a7070;
+    border-color: var(--color-border-focus);
+    box-shadow: var(--shadow-primary);
+    transform: translateY(-1px);
   }
 
   &:last-child {
@@ -18,42 +21,52 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 0.5rem;
+  margin-bottom: var(--spacing-sm);
 }
 
 .card-priority {
   display: flex;
   align-items: center;
-  gap: 0.25rem;
-  font-size: 0.7rem;
-  font-weight: 500;
+  gap: var(--spacing-xs);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
   text-transform: uppercase;
-  color: #715a5a;
-  letter-spacing: 0.025em;
+  color: var(--color-text-muted);
+  letter-spacing: 0.05em;
 
   .priority-dot {
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
+    width: var(--spacing-sm);
+    height: var(--spacing-sm);
+    border-radius: var(--radius-full);
+    box-shadow: 0 0 0 1px var(--color-primary-light);
   }
 }
 
 .card-actions {
   display: flex;
-  gap: 0.25rem;
+  gap: var(--spacing-sm);
 
   button {
     background: none;
     border: none;
     cursor: pointer;
-    padding: 0.125rem;
-    border-radius: 1px;
-    transition: opacity 0.15s ease;
-    font-size: 0.8rem;
-    color: #715a5a;
+    padding: var(--spacing-xs);
+    border-radius: var(--radius-sm);
+    transition: var(--transition-all);
+    font-size: var(--font-size-base);
+    color: var(--color-text-muted);
+    display: flex;
+    align-items: center;
+    justify-content: center;
 
     &:hover {
-      opacity: 0.6;
+      background: var(--color-interactive-active);
+      color: var(--color-text-primary);
+      transform: scale(1.1);
+    }
+
+    &:active {
+      transform: scale(0.95);
     }
   }
 }
@@ -68,14 +81,23 @@
   background: none;
   border: none;
   cursor: pointer;
-  padding: 0.125rem;
-  border-radius: 1px;
-  transition: opacity 0.15s ease;
-  font-size: 0.8rem;
-  color: #715a5a;
+  padding: var(--spacing-xs);
+  border-radius: var(--radius-sm);
+  transition: var(--transition-all);
+  font-size: var(--font-size-base);
+  color: var(--color-text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
 
   &:hover {
-    opacity: 0.6;
+    background: var(--color-interactive-active);
+    color: var(--color-text-primary);
+    transform: scale(1.1);
+  }
+
+  &:active {
+    transform: scale(0.95);
   }
 }
 
@@ -83,40 +105,42 @@
   position: absolute;
   top: 100%;
   right: 0;
-  background: #44444e;
-  border: 1px solid #715a5a;
-  border-radius: 4px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
-  z-index: 100;
+  background: var(--color-bg-tertiary);
+  border: 1px solid var(--color-border-primary);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-xl);
+  z-index: var(--z-dropdown);
   min-width: 140px;
-  animation: dropdownSlideIn 0.15s ease-out;
+  animation: dropdownSlideIn var(--transition-fast) ease-out;
 }
 
 .status-option {
-  padding: 0.5rem 0.75rem;
+  padding: var(--spacing-md) var(--spacing-lg);
   cursor: pointer;
-  color: #d3dad9;
-  font-size: 0.8rem;
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-medium);
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  transition: background 0.15s ease;
+  gap: var(--spacing-sm);
+  transition: var(--transition-all);
 
   &:hover {
-    background: #715a5a;
+    background: var(--color-primary);
+    color: var(--color-text-primary);
   }
 
   &:first-child {
-    border-radius: 4px 4px 0 0;
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
   }
 
   &:last-child {
-    border-radius: 0 0 4px 4px;
+    border-radius: 0 0 var(--radius-lg) var(--radius-lg);
   }
 
   &.current {
-    background: #715a5a;
-    color: #d3dad9;
+    background: var(--color-primary);
+    color: var(--color-text-primary);
     font-weight: 500;
 
     &::after {
@@ -145,110 +169,119 @@
 .title-container {
   display: flex;
   align-items: flex-start;
-  gap: 0.5rem;
+  gap: var(--spacing-sm);
 
   &.editing {
     .card-title {
-      outline: 1px solid #715a5a;
+      outline: 2px solid var(--color-border-focus);
       outline-offset: 2px;
-      border-radius: 2px;
-      background: #44444e;
+      border-radius: var(--radius-sm);
+      background: var(--color-bg-input);
     }
   }
 }
 
 .card-title {
-  font-size: 0.875rem;
-  font-weight: 500;
-  color: #d3dad9;
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
   margin: 0;
-  line-height: 1.3;
+  line-height: var(--line-height-normal);
   cursor: pointer;
-  transition: opacity 0.15s ease;
+  transition: var(--transition-all);
   flex: 1;
-  min-height: 1.1em;
-  padding: 0.125rem 0.25rem;
+  min-height: 1.2em;
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border-radius: var(--radius-sm);
 
   &:hover:not([contenteditable='true']) {
-    opacity: 0.8;
+    background: var(--color-interactive-hover);
+    color: var(--color-text-primary);
   }
 
   &[contenteditable='true'] {
     cursor: text;
+    color: var(--color-text-primary);
 
     &:focus {
       outline: none;
+      background: var(--color-bg-input);
     }
   }
 
   // Special styling for placeholder text in temporary cards
   .temp-card-wrapper & {
     &:not([contenteditable='true']) {
-      color: #715a5a;
+      color: var(--color-text-muted);
       font-style: italic;
+      font-weight: var(--font-weight-normal);
     }
   }
 }
 
 .card-description-section {
-  margin-bottom: 0.5rem;
+  margin-bottom: var(--spacing-sm);
 }
 
 .description-container {
   display: flex;
   align-items: flex-start;
-  gap: 0.5rem;
+  gap: var(--spacing-sm);
 
   &.editing {
     .card-description {
-      outline: 1px solid #715a5a;
+      outline: 2px solid var(--color-border-focus);
       outline-offset: 2px;
-      border-radius: 2px;
-      background: #44444e;
+      border-radius: var(--radius-sm);
+      background: var(--color-bg-input);
     }
   }
 }
 
 .card-description {
-  font-size: 0.8rem;
-  color: #d3dad9;
+  font-size: var(--font-size-base);
+  color: var(--color-text-secondary);
   margin: 0;
-  line-height: 1.4;
+  line-height: var(--line-height-relaxed);
   cursor: pointer;
-  transition: opacity 0.15s ease;
+  transition: var(--transition-all);
   min-height: 1.2em;
   white-space: pre-wrap;
   word-wrap: break-word;
   flex: 1;
-  padding: 0.25rem 0.375rem;
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border-radius: var(--radius-sm);
 
   &:hover:not([contenteditable='true']) {
-    opacity: 0.8;
+    background: var(--color-interactive-hover);
+    color: var(--color-text-primary);
   }
 
   &[contenteditable='true'] {
     cursor: text;
+    color: var(--color-text-primary);
 
     &:focus {
       outline: none;
+      background: var(--color-bg-input);
     }
 
     &:empty::before {
       content: attr(data-placeholder);
-      color: #715a5a;
+      color: var(--color-text-placeholder);
       font-style: italic;
     }
   }
 
   &.empty-description:not([contenteditable='true']) {
-    color: #715a5a;
+    color: var(--color-text-muted);
     font-style: italic;
   }
 
   // Special styling for placeholder text in temporary cards
   .temp-card-wrapper & {
     &:not([contenteditable='true']) {
-      color: #715a5a;
+      color: var(--color-text-muted);
       font-style: italic;
     }
   }
@@ -295,10 +328,14 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+  margin-top: var(--spacing-md);
+  padding-top: var(--spacing-sm);
+  border-top: 1px solid var(--color-border-primary);
 
   .card-date {
-    font-size: 0.7rem;
-    color: #d3dad9;
+    font-size: var(--font-size-sm);
+    color: var(--color-text-muted);
+    font-weight: var(--font-weight-normal);
   }
 }
 
@@ -309,32 +346,32 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(55, 53, 62, 0.9);
+  background: var(--color-bg-overlay);
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 1000;
+  z-index: var(--z-modal);
   backdrop-filter: blur(2px);
 }
 
 .delete-confirmation-dialog {
-  background: #44444e;
-  border: 1px solid #715a5a;
-  border-radius: 4px;
-  padding: 1.5rem;
+  background: var(--color-bg-tertiary);
+  border: 1px solid var(--color-border-primary);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-2xl);
   max-width: 400px;
   width: 90%;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
-  animation: confirmationSlideIn 0.2s ease-out;
+  box-shadow: var(--shadow-xl);
+  animation: confirmationSlideIn var(--transition-normal) ease-out;
 
   .confirmation-header {
     margin-bottom: 1rem;
     padding-bottom: 0.75rem;
-    border-bottom: 1px solid #715a5a;
+    border-bottom: 1px solid var(--color-border-primary);
 
     h3 {
       margin: 0;
-      color: #d3dad9;
+      color: var(--color-text-secondary);
       font-size: 1.125rem;
       font-weight: 600;
     }
@@ -345,19 +382,19 @@
 
     p {
       margin: 0 0 0.75rem 0;
-      color: #d3dad9;
+      color: var(--color-text-secondary);
       font-size: 0.875rem;
       line-height: 1.5;
 
       &:last-child {
         margin-bottom: 0;
-        color: #715a5a;
+        color: var(--color-text-muted);
         font-size: 0.8rem;
         font-style: italic;
       }
 
       strong {
-        color: #d3dad9;
+        color: var(--color-text-secondary);
         font-weight: 600;
       }
     }
@@ -378,30 +415,30 @@
       transition: all 0.15s ease;
 
       &:focus {
-        outline: 2px solid #715a5a;
+        outline: 2px solid var(--color-border-primary);
         outline-offset: 2px;
       }
     }
 
     .cancel-btn {
-      background: #715a5a;
-      color: #d3dad9;
+      background: var(--color-interactive-active);
+      color: var(--color-text-primary);
 
       &:hover {
-        background: #8a7070;
+        background: var(--color-interactive-disabled);
       }
     }
 
     .confirm-delete-btn {
-      background: #ef4444;
+      background: var(--color-error);
       color: white;
 
       &:hover {
-        background: #dc2626;
+        background: var(--color-error-hover);
       }
 
       &:focus {
-        outline-color: #ef4444;
+        outline-color: var(--color-error);
       }
     }
   }

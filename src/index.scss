@@ -1,3 +1,113 @@
+:root {
+  /* ===== COLOR SYSTEM ===== */
+
+  /* Primary Colors */
+  --color-primary: #3b82f6;
+  --color-primary-hover: #2563eb;
+  --color-primary-active: #1d4ed8;
+  --color-primary-light: rgba(59, 130, 246, 0.1);
+  --color-primary-shadow: rgba(59, 130, 246, 0.2);
+
+  /* Background Colors */
+  --color-bg-primary: #1a1a1a;
+  --color-bg-secondary: #252525;
+  --color-bg-tertiary: #2d2d2d;
+  --color-bg-card: #2d2d2d;
+  --color-bg-overlay: rgba(0, 0, 0, 0.5);
+  --color-bg-input: #1a1a1a;
+
+  /* Text Colors */
+  --color-text-primary: #ffffff;
+  --color-text-secondary: #e0e0e0;
+  --color-text-muted: #9ca3af;
+  --color-text-disabled: #6b7280;
+  --color-text-placeholder: #9ca3af;
+
+  /* Border Colors */
+  --color-border-primary: #404040;
+  --color-border-secondary: #525252;
+  --color-border-focus: var(--color-primary);
+  --color-border-hover: #525252;
+
+  /* State Colors */
+  --color-success: #10b981;
+  --color-success-hover: #059669;
+  --color-warning: #f59e0b;
+  --color-warning-hover: #d97706;
+  --color-error: #ef4444;
+  --color-error-hover: #dc2626;
+  --color-info: #6366f1;
+  --color-info-hover: #4f46e5;
+
+  /* Status Colors */
+  --color-status-idea: var(--color-info);
+  --color-status-progress: var(--color-warning);
+  --color-status-done: var(--color-success);
+
+  /* Interactive States */
+  --color-interactive-hover: rgba(255, 255, 255, 0.05);
+  --color-interactive-active: rgba(255, 255, 255, 0.1);
+  --color-interactive-disabled: #374151;
+
+  /* ===== SPACING SYSTEM ===== */
+  --spacing-xs: 0.25rem; /* 4px */
+  --spacing-sm: 0.5rem; /* 8px */
+  --spacing-md: 0.75rem; /* 12px */
+  --spacing-lg: 1rem; /* 16px */
+  --spacing-xl: 1.25rem; /* 20px */
+  --spacing-2xl: 1.5rem; /* 24px */
+  --spacing-3xl: 2rem; /* 32px */
+  --spacing-4xl: 3rem; /* 48px */
+
+  /* ===== BORDER RADIUS ===== */
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  --radius-xl: 12px;
+  --radius-full: 50%;
+
+  /* ===== SHADOWS ===== */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 1px 3px rgba(0, 0, 0, 0.2);
+  --shadow-lg: 0 4px 12px rgba(0, 0, 0, 0.15);
+  --shadow-xl: 0 8px 24px rgba(0, 0, 0, 0.5);
+  --shadow-primary: 0 4px 12px rgba(59, 130, 246, 0.15);
+  --shadow-primary-lg: 0 8px 24px rgba(59, 130, 246, 0.3);
+
+  /* ===== TYPOGRAPHY ===== */
+  --font-size-xs: 0.7rem; /* 11.2px */
+  --font-size-sm: 0.75rem; /* 12px */
+  --font-size-base: 0.875rem; /* 14px */
+  --font-size-md: 0.95rem; /* 15.2px */
+  --font-size-lg: 1rem; /* 16px */
+  --font-size-xl: 1.125rem; /* 18px */
+  --font-size-2xl: 1.5rem; /* 24px */
+
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+
+  --line-height-tight: 1.25;
+  --line-height-normal: 1.4;
+  --line-height-relaxed: 1.5;
+
+  /* ===== TRANSITIONS ===== */
+  --transition-fast: 0.15s ease;
+  --transition-normal: 0.2s ease;
+  --transition-slow: 0.3s ease;
+  --transition-transform: transform 0.15s ease;
+  --transition-colors:
+    color 0.15s ease, background-color 0.15s ease, border-color 0.15s ease;
+  --transition-all: all 0.15s ease;
+
+  /* ===== Z-INDEX SCALE ===== */
+  --z-dropdown: 100;
+  --z-modal: 1000;
+  --z-tooltip: 1100;
+  --z-overlay: 9999;
+}
+
 * {
   margin: 0;
   padding: 0;
@@ -8,10 +118,10 @@ body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background-color: #37353e;
-  color: #d3dad9;
-  line-height: 1.4;
-  font-size: 14px;
+  background-color: var(--color-bg-primary);
+  color: var(--color-text-primary);
+  line-height: var(--line-height-relaxed);
+  font-size: var(--font-size-base);
 }
 
 code {
@@ -24,8 +134,8 @@ code {
   justify-content: center;
   align-items: center;
   height: 100vh;
-  font-size: 0.875rem;
-  color: #715a5a;
+  font-size: var(--font-size-base);
+  color: var(--color-text-muted);
 }
 
 .error {
@@ -33,8 +143,8 @@ code {
   justify-content: center;
   align-items: center;
   height: 100vh;
-  font-size: 0.875rem;
-  color: #d3dad9;
+  font-size: var(--font-size-base);
+  color: var(--color-text-secondary);
   text-align: center;
-  padding: 1rem;
+  padding: var(--spacing-lg);
 }
