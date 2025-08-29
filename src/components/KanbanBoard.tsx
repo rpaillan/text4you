@@ -4,6 +4,7 @@ import {
   Card as CardType,
   CardStatus,
   CreateCardData,
+  Column,
 } from '../types/index.js';
 import './KanbanBoard.scss';
 
@@ -25,9 +26,9 @@ const KanbanBoard: React.FC<KanbanBoardProps> = ({
 }) => {
   const [tempCard, setTempCard] = useState<CardType | null>(null);
 
-  const columns = [
-    { id: 'idea' as const, title: 'Idea', color: '#6366f1' },
-    { id: 'in_progress' as const, title: 'In Progress', color: '#f59e0b' },
+  const columns : Column[] = [
+    { id: 'in_progress' as const, title: "Work in Motion 🔄", color: '#f59e0b' },
+    { id: 'idea' as const, title: "Brain Blast 💡", color: '#6366f1' },
     { id: 'done' as const, title: 'Done', color: '#10b981' },
   ];
 
@@ -115,6 +116,7 @@ const KanbanBoard: React.FC<KanbanBoardProps> = ({
                 {tempCard && tempCard.status === column.id && (
                   <div className='temp-card-wrapper'>
                     <Card
+                      columns={columns}
                       key={tempCard.id}
                       card={tempCard}
                       index={-1}
@@ -134,6 +136,7 @@ const KanbanBoard: React.FC<KanbanBoardProps> = ({
 
                 {columnCards.map((card, index) => (
                   <Card
+                    columns={columns}
                     key={card.id}
                     card={card}
                     index={index}

@@ -5,17 +5,19 @@ import {
   Priority,
   CreateCardData,
   CardStatus,
+  Column,
 } from '../types/index.js';
 import './Card.scss';
 
 interface CardProps {
+  columns: Column[];
   card: CardType;
   index: number;
   onUpdate: (_id: number, _cardData: Partial<CreateCardData>) => Promise<void>;
   onDelete: (_id: number) => Promise<void>;
 }
 
-const Card: React.FC<CardProps> = ({ card, onUpdate, onDelete }) => {
+const Card: React.FC<CardProps> = ({ columns, card, onUpdate, onDelete }) => {
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [isEditingDescription, setIsEditingDescription] = useState(false);
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
@@ -43,29 +45,14 @@ const Card: React.FC<CardProps> = ({ card, onUpdate, onDelete }) => {
   };
 
   const handleSaveDescription = async () => {
+    // lets try to store html content instead of plain text.
     if (!descriptionRef.current) return;
 
     // Convert HTML content to plain text with newlines
     const htmlContent = descriptionRef.current.innerHTML;
 
-    // Replace <br> tags with newlines and decode HTML entities
-    const textWithNewlines = htmlContent
-      .replace(/<br\s*\/?>/gi, '\n')
-      .replace(/<div>/gi, '\n')
-      .replace(/<\/div>/gi, '')
-      .replace(/&nbsp;/g, ' ')
-      .replace(/&lt;/g, '<')
-      .replace(/&gt;/g, '>')
-      .replace(/&amp;/g, '&');
-
-    // Remove any remaining HTML tags
-    const tempDiv = document.createElement('div');
-    tempDiv.innerHTML = textWithNewlines;
-    const plainText = tempDiv.textContent || tempDiv.innerText || '';
-
-    const trimmedDescription = plainText.replace(/^\s+|\s+$/g, '');
-    if (trimmedDescription !== (card.description || '')) {
-      await onUpdate(card.id, { description: trimmedDescription || undefined });
+    if (htmlContent !== (card.description || '')) {
+      await onUpdate(card.id, { description: htmlContent || undefined });
     }
     setIsEditingDescription(false);
   };
@@ -249,31 +236,23 @@ const Card: React.FC<CardProps> = ({ card, onUpdate, onDelete }) => {
               </button>
               {showStatusDropdown && (
                 <div className='status-dropdown'>
-                  <div
-                    className={`status-option ${card.status === 'idea' ? 'current' : ''}`}
-                    onClick={() => handleStatusChange('idea')}
-                  >
-                    💡 Idea
-                  </div>
-                  <div
-                    className={`status-option ${card.status === 'in_progress' ? 'current' : ''}`}
-                    onClick={() => handleStatusChange('in_progress')}
-                  >
-                    🔄 In Progress
-                  </div>
-                  <div
-                    className={`status-option ${card.status === 'done' ? 'current' : ''}`}
-                    onClick={() => handleStatusChange('done')}
-                  >
-                    ✅ Done
-                  </div>
+                  {columns.map((column) => (
+                    <div
+                      key={column.id}
+                      className={`status-option ${card.status === column.id ? 'current' : ''}`}
+                      onClick={() => handleStatusChange(column.id)}
+                    >
+                      {column.title}
+                    </div>
+                  ))}
                 </div>
               )}
             </div>
             <button className='delete-btn' onClick={handleDeleteClick}>
               🗑️
-            </button>
+              </button>
           </div>
+  
         </div>
 
         <div className='card-content'>

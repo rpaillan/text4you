@@ -31,3 +31,9 @@ export interface ApiResponse<T> {
   error?: string;
   message?: string;
 }
+
+export interface Column {
+  id: CardStatus;
+  title: string;
+  color: string;
+}
