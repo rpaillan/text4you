@@ -105,37 +105,70 @@ app.post('/api/cards', (req: Request<{}, {}, CreateCardData>, res: Response) => 
 // Update a card
 app.put('/api/cards/:id', (req: Request<{ id: string }, {}, UpdateCardData>, res: Response) => {
   const id = parseInt(req.params.id);
-  const { title, description, status, priority } = req.body;
+  const updateData = req.body;
   
   if (isNaN(id)) {
     res.status(400).json({ error: 'Invalid card ID' });
     return;
   }
   
-  db.run(
-    "UPDATE cards SET title = ?, description = ?, status = ?, priority = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?",
-    [title, description, status, priority, id],
-    function(err) {
+  // Build dynamic SQL query for partial updates
+  const updateFields: string[] = [];
+  const updateValues: any[] = [];
+  
+  if (updateData.title !== undefined) {
+    updateFields.push('title = ?');
+    updateValues.push(updateData.title);
+  }
+  
+  if (updateData.description !== undefined) {
+    updateFields.push('description = ?');
+    updateValues.push(updateData.description);
+  }
+  
+  if (updateData.status !== undefined) {
+    updateFields.push('status = ?');
+    updateValues.push(updateData.status);
+  }
+  
+  if (updateData.priority !== undefined) {
+    updateFields.push('priority = ?');
+    updateValues.push(updateData.priority);
+  }
+  
+  if (updateFields.length === 0) {
+    res.status(400).json({ error: 'No valid fields to update' });
+    return;
+  }
+  
+  // Always update the timestamp
+  updateFields.push('updated_at = CURRENT_TIMESTAMP');
+  updateValues.push(id); // Add ID as the last parameter
+  
+  const sql = `UPDATE cards SET ${updateFields.join(', ')} WHERE id = ?`;
+  
+  db.run(sql, updateValues, function(err) {
+    if (err) {
+      console.error('Database error:', err);
+      res.status(500).json({ error: err.message });
+      return;
+    }
+    
+    if (this.changes === 0) {
+      res.status(404).json({ error: 'Card not found' });
+      return;
+    }
+    
+    // Get the updated card
+    db.get("SELECT * FROM cards WHERE id = ?", [id], (err, row: Card | undefined) => {
       if (err) {
+        console.error('Database error:', err);
         res.status(500).json({ error: err.message });
         return;
       }
-      
-      if (this.changes === 0) {
-        res.status(404).json({ error: 'Card not found' });
-        return;
-      }
-      
-      // Get the updated card
-      db.get("SELECT * FROM cards WHERE id = ?", [id], (err, row: Card | undefined) => {
-        if (err) {
-          res.status(500).json({ error: err.message });
-          return;
-        }
-        res.json(row);
-      });
-    }
-  );
+      res.json(row);
+    });
+  });
 });
 
 // Delete a card
