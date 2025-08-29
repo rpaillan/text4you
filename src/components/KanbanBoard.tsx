@@ -103,8 +103,6 @@ const KanbanBoard: React.FC<KanbanBoardProps> = ({
         {columns.map(column => {
           const columnCards = cards.filter(card => card.status === column.id);
 
-          if (columnCards.length === 0) return null;
-
           return (
             <div key={column.id} className='status-section'>
               <div
@@ -135,6 +133,14 @@ const KanbanBoard: React.FC<KanbanBoardProps> = ({
                   </div>
                 )}
 
+                {columnCards.length === 0 &&
+                  (!tempCard || tempCard.status !== column.id) && (
+                    <div className='empty-section-message'>
+                      <p>No cards in {column.title.toLowerCase()}</p>
+                      <span>Click "Add to {column.title}" to get started</span>
+                    </div>
+                  )}
+
                 {columnCards.map((card, index) => (
                   <Card
                     key={card.id}
@@ -148,29 +154,6 @@ const KanbanBoard: React.FC<KanbanBoardProps> = ({
             </div>
           );
         })}
-
-        {/* Show message if no cards exist */}
-        {cards.length === 0 && !tempCard && (
-          <div className='empty-state'>
-            <h3>No cards yet</h3>
-            <p>Click "Add Card" to create your first task!</p>
-          </div>
-        )}
-
-        {/* Global temp card for when no sections exist */}
-        {cards.length === 0 && tempCard && (
-          <div className='global-card-creator'>
-            <div className='temp-card-wrapper'>
-              <Card
-                key={tempCard.id}
-                card={tempCard}
-                index={-1}
-                onUpdate={handleTempCardUpdate}
-                onDelete={handleTempCardDelete}
-              />
-            </div>
-          </div>
-        )}
       </div>
     </div>
   );

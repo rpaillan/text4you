@@ -1,6 +1,11 @@
 import React, { useState, useRef, useEffect } from 'react';
 
-import { Card as CardType, Priority, CreateCardData } from '../types/index.js';
+import {
+  Card as CardType,
+  Priority,
+  CreateCardData,
+  CardStatus,
+} from '../types/index.js';
 import './Card.scss';
 
 interface CardProps {
@@ -14,6 +19,7 @@ const Card: React.FC<CardProps> = ({ card, onUpdate, onDelete }) => {
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [isEditingDescription, setIsEditingDescription] = useState(false);
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
+  const [showStatusDropdown, setShowStatusDropdown] = useState(false);
 
   const titleRef = useRef<HTMLHeadingElement>(null);
   const descriptionRef = useRef<HTMLDivElement>(null);
@@ -144,6 +150,20 @@ const Card: React.FC<CardProps> = ({ card, onUpdate, onDelete }) => {
     }
   }, [showDeleteConfirmation]);
 
+  // Handle clicking outside the status dropdown
+  useEffect(() => {
+    if (showStatusDropdown) {
+      const handleDocumentClick = () => {
+        setShowStatusDropdown(false);
+      };
+
+      document.addEventListener('click', handleDocumentClick);
+      return () => {
+        document.removeEventListener('click', handleDocumentClick);
+      };
+    }
+  }, [showStatusDropdown]);
+
   const getPriorityColor = (priority: Priority): string => {
     switch (priority) {
       case 'high':
@@ -189,6 +209,18 @@ const Card: React.FC<CardProps> = ({ card, onUpdate, onDelete }) => {
     }
   };
 
+  const handleStatusDropdownClick = (e: React.MouseEvent): void => {
+    e.stopPropagation();
+    setShowStatusDropdown(!showStatusDropdown);
+  };
+
+  const handleStatusChange = async (newStatus: CardStatus): Promise<void> => {
+    if (newStatus !== card.status) {
+      await onUpdate(card.id, { status: newStatus });
+    }
+    setShowStatusDropdown(false);
+  };
+
   return (
     <>
       <div className='card'>
@@ -201,6 +233,37 @@ const Card: React.FC<CardProps> = ({ card, onUpdate, onDelete }) => {
             {card.priority}
           </div>
           <div className='card-actions'>
+            <div className='status-dropdown-container'>
+              <button
+                className='status-btn'
+                onClick={handleStatusDropdownClick}
+                title='Move to different status'
+              >
+                📋
+              </button>
+              {showStatusDropdown && (
+                <div className='status-dropdown'>
+                  <div
+                    className={`status-option ${card.status === 'idea' ? 'current' : ''}`}
+                    onClick={() => handleStatusChange('idea')}
+                  >
+                    💡 Idea
+                  </div>
+                  <div
+                    className={`status-option ${card.status === 'in_progress' ? 'current' : ''}`}
+                    onClick={() => handleStatusChange('in_progress')}
+                  >
+                    🔄 In Progress
+                  </div>
+                  <div
+                    className={`status-option ${card.status === 'done' ? 'current' : ''}`}
+                    onClick={() => handleStatusChange('done')}
+                  >
+                    ✅ Done
+                  </div>
+                </div>
+              )}
+            </div>
             <button className='delete-btn' onClick={handleDeleteClick}>
               🗑️
             </button>
