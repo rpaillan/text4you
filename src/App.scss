@@ -1,37 +1,22 @@
 .app {
   min-height: 100vh;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  position: relative; // Ensure proper stacking context
-  z-index: 1; // Base z-index for the app
+  background: #37353E;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 }
 
 .app-header {
-  background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(10px);
-  padding: 1.5rem 2rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  background: #44444E;
+  padding: 1rem 2rem;
+  border-bottom: 1px solid #715A5A;
   
   h1 {
-    color: white;
-    font-size: 2.5rem;
-    font-weight: 700;
+    color: #D3DAD9;
+    font-size: 1.5rem;
+    font-weight: 600;
     text-align: center;
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
     margin: 0;
+    letter-spacing: -0.025em;
   }
 }
 
-// Dragged card overlay styles
-.dragged-card-overlay {
-  // Inherit all card styles from the main Card.scss
-  // The card class will provide the base styling
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3); // Enhanced shadow for dragged state
-  z-index: 9999;
-  cursor: grabbing;
-  
-  // Ensure buttons are visible but non-interactive during drag
-  .card-actions button {
-    opacity: 0.7;
-    pointer-events: none; // Disable interactions during drag
-  }
-}
+// No drag and drop styles needed anymore
