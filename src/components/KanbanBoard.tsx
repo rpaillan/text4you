@@ -90,15 +90,6 @@ const KanbanBoard: React.FC<KanbanBoardProps> = ({
 
   return (
     <div className='kanban-board'>
-      <div className='board-header'>
-        <button
-          className='add-card-btn'
-          onClick={() => startCreatingCard('idea')}
-        >
-          + Add Card
-        </button>
-      </div>
-
       <div className='vertical-card-list'>
         {columns.map(column => {
           const columnCards = cards.filter(card => card.status === column.id);

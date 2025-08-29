@@ -183,6 +183,11 @@ const Card: React.FC<CardProps> = ({ card, onUpdate, onDelete }) => {
 
   const handleDeleteClick = (e: React.MouseEvent): void => {
     e.stopPropagation();
+    if (card.id === -1) {
+      // if it's a temporary card, let remove without confirmation
+      onDelete(card.id);
+      return;
+    }
     setShowDeleteConfirmation(true);
   };
 
@@ -225,6 +230,7 @@ const Card: React.FC<CardProps> = ({ card, onUpdate, onDelete }) => {
     <>
       <div className='card'>
         <div className='card-header'>
+          <div className='card-header-id'>{card.id}</div>
           <div className='card-priority'>
             <span
               className='priority-dot'

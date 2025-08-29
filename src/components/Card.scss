@@ -22,10 +22,19 @@
   justify-content: space-between;
   align-items: center;
   margin-bottom: var(--spacing-sm);
+  gap: var(--spacing-sm);
+}
+
+.card-header-id {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-muted);
+  letter-spacing: 0.05em;
 }
 
 .card-priority {
   display: flex;
+  flex-grow: 1;
   align-items: center;
   gap: var(--spacing-xs);
   font-size: var(--font-size-sm);
