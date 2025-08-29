@@ -88,6 +88,8 @@
   cursor: pointer;
   transition: opacity 0.15s ease;
   min-height: 1.2em;
+  white-space: pre-wrap; // Preserve newlines and spaces
+  word-wrap: break-word; // Break long words if needed
   
   &:hover {
     opacity: 0.8;

@@ -30,8 +30,10 @@ const Card: React.FC<CardProps> = ({ card, onUpdate, onDelete, onEdit }) => {
   };
 
   const handleSaveDescription = async () => {
-    if (editDescription !== card.description) {
-      await onUpdate(card.id, { description: editDescription.trim() || undefined });
+    // Trim only leading/trailing whitespace, preserve internal newlines
+    const trimmedDescription = editDescription.replace(/^\s+|\s+$/g, '');
+    if (trimmedDescription !== (card.description || '')) {
+      await onUpdate(card.id, { description: trimmedDescription || undefined });
     }
     setIsEditingDescription(false);
   };
@@ -180,6 +182,7 @@ const Card: React.FC<CardProps> = ({ card, onUpdate, onDelete, onEdit }) => {
                 className={`card-description ${!card.description ? 'empty-description' : ''}`}
                 onClick={() => setIsEditingDescription(true)}
                 title="Click to edit"
+                style={{ whiteSpace: 'pre-wrap' }}
               >
                 {card.description || 'Click to add description...'}
               </p>
