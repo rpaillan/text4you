@@ -12,11 +12,7 @@ export type CardStatus = 'idea' | 'in_progress' | 'done';
 
 export type Priority = 'low' | 'medium' | 'high';
 
-export interface Column {
-  id: CardStatus;
-  title: string;
-  color: string;
-}
+
 
 export interface CreateCardData {
   title: string;
@@ -38,11 +34,4 @@ export interface ApiResponse<T> {
   message?: string;
 }
 
-export interface DragEndEvent {
-  active: {
-    id: string | number;
-  };
-  over: {
-    id: string | number;
-  } | null;
-}
+
