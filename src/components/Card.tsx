@@ -8,22 +8,18 @@ interface CardProps {
   index: number;
   onUpdate: (_id: number, _cardData: Partial<CreateCardData>) => Promise<void>;
   onDelete: (_id: number) => Promise<void>;
-  onEdit: (_card: CardType) => void;
 }
 
-const Card: React.FC<CardProps> = ({
-  card,
-  onUpdate,
-  onDelete,
-  onEdit: _onEdit,
-}) => {
+const Card: React.FC<CardProps> = ({ card, onUpdate, onDelete }) => {
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [isEditingDescription, setIsEditingDescription] = useState(false);
+  const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
 
   const titleRef = useRef<HTMLHeadingElement>(null);
   const descriptionRef = useRef<HTMLDivElement>(null);
   const originalTitle = useRef<string>(card.title);
   const originalDescription = useRef<string>(card.description || '');
+  const confirmationDialogRef = useRef<HTMLDivElement>(null);
 
   const handleSaveTitle = async () => {
     const currentTitle = titleRef.current?.textContent?.trim() || '';
@@ -141,6 +137,13 @@ const Card: React.FC<CardProps> = ({
     }
   }, [isEditingDescription]);
 
+  // Focus the confirmation dialog when it opens
+  useEffect(() => {
+    if (showDeleteConfirmation && confirmationDialogRef.current) {
+      confirmationDialogRef.current.focus();
+    }
+  }, [showDeleteConfirmation]);
+
   const getPriorityColor = (priority: Priority): string => {
     switch (priority) {
       case 'high':
@@ -158,6 +161,34 @@ const Card: React.FC<CardProps> = ({
     return new Date(dateString).toLocaleDateString();
   };
 
+  const handleDeleteClick = (e: React.MouseEvent): void => {
+    e.stopPropagation();
+    setShowDeleteConfirmation(true);
+  };
+
+  const handleConfirmDelete = (): void => {
+    onDelete(card.id);
+    setShowDeleteConfirmation(false);
+  };
+
+  const handleCancelDelete = (): void => {
+    setShowDeleteConfirmation(false);
+  };
+
+  const handleConfirmationKeyPress = (e: React.KeyboardEvent): void => {
+    if (e.key === 'Escape') {
+      handleCancelDelete();
+    } else if (e.key === 'Enter') {
+      handleConfirmDelete();
+    }
+  };
+
+  const handleOverlayClick = (e: React.MouseEvent): void => {
+    if (e.target === e.currentTarget) {
+      handleCancelDelete();
+    }
+  };
+
   return (
     <>
       <div className='card'>
@@ -170,22 +201,7 @@ const Card: React.FC<CardProps> = ({
             {card.priority}
           </div>
           <div className='card-actions'>
-            <button
-              className='edit-btn'
-              onClick={e => {
-                e.stopPropagation();
-                _onEdit(card);
-              }}
-            >
-              ✏️
-            </button>
-            <button
-              className='delete-btn'
-              onClick={e => {
-                e.stopPropagation();
-                onDelete(card.id);
-              }}
-            >
+            <button className='delete-btn' onClick={handleDeleteClick}>
               🗑️
             </button>
           </div>
@@ -294,7 +310,41 @@ const Card: React.FC<CardProps> = ({
         </div>
       </div>
 
-      {/* Remove the local EditCardModal component */}
+      {/* Delete Confirmation Dialog */}
+      {showDeleteConfirmation && (
+        <div
+          className='delete-confirmation-overlay'
+          onClick={handleOverlayClick}
+        >
+          <div
+            className='delete-confirmation-dialog'
+            onKeyDown={handleConfirmationKeyPress}
+            tabIndex={-1}
+            ref={confirmationDialogRef}
+          >
+            <div className='confirmation-header'>
+              <h3>Confirm Delete</h3>
+            </div>
+            <div className='confirmation-content'>
+              <p>
+                Are you sure you want to delete <strong>"{card.title}"</strong>?
+              </p>
+              <p>This action cannot be undone.</p>
+            </div>
+            <div className='confirmation-actions'>
+              <button className='cancel-btn' onClick={handleCancelDelete}>
+                Cancel
+              </button>
+              <button
+                className='confirm-delete-btn'
+                onClick={handleConfirmDelete}
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 };

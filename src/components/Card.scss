@@ -274,3 +274,145 @@
     color: #d3dad9;
   }
 }
+
+// Delete Confirmation Dialog
+.delete-confirmation-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(55, 53, 62, 0.9);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  backdrop-filter: blur(2px);
+}
+
+.delete-confirmation-dialog {
+  background: #44444e;
+  border: 1px solid #715a5a;
+  border-radius: 4px;
+  padding: 1.5rem;
+  max-width: 400px;
+  width: 90%;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+  animation: confirmationSlideIn 0.2s ease-out;
+
+  .confirmation-header {
+    margin-bottom: 1rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid #715a5a;
+
+    h3 {
+      margin: 0;
+      color: #d3dad9;
+      font-size: 1.125rem;
+      font-weight: 600;
+    }
+  }
+
+  .confirmation-content {
+    margin-bottom: 1.5rem;
+
+    p {
+      margin: 0 0 0.75rem 0;
+      color: #d3dad9;
+      font-size: 0.875rem;
+      line-height: 1.5;
+
+      &:last-child {
+        margin-bottom: 0;
+        color: #715a5a;
+        font-size: 0.8rem;
+        font-style: italic;
+      }
+
+      strong {
+        color: #d3dad9;
+        font-weight: 600;
+      }
+    }
+  }
+
+  .confirmation-actions {
+    display: flex;
+    gap: 0.75rem;
+    justify-content: flex-end;
+
+    button {
+      padding: 0.5rem 1rem;
+      border: none;
+      border-radius: 3px;
+      font-size: 0.875rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.15s ease;
+
+      &:focus {
+        outline: 2px solid #715a5a;
+        outline-offset: 2px;
+      }
+    }
+
+    .cancel-btn {
+      background: #715a5a;
+      color: #d3dad9;
+
+      &:hover {
+        background: #8a7070;
+      }
+    }
+
+    .confirm-delete-btn {
+      background: #ef4444;
+      color: white;
+
+      &:hover {
+        background: #dc2626;
+      }
+
+      &:focus {
+        outline-color: #ef4444;
+      }
+    }
+  }
+}
+
+@keyframes confirmationSlideIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+// Mobile responsiveness for confirmation dialog
+@media (max-width: 768px) {
+  .delete-confirmation-dialog {
+    padding: 1rem;
+    max-width: 340px;
+
+    .confirmation-header h3 {
+      font-size: 1rem;
+    }
+
+    .confirmation-content p {
+      font-size: 0.8rem;
+    }
+
+    .confirmation-actions {
+      flex-direction: column;
+      gap: 0.5rem;
+
+      button {
+        width: 100%;
+        padding: 0.625rem;
+      }
+    }
+  }
+}

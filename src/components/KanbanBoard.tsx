@@ -131,7 +131,6 @@ const KanbanBoard: React.FC<KanbanBoardProps> = ({
                       index={-1}
                       onUpdate={handleTempCardUpdate}
                       onDelete={handleTempCardDelete}
-                      onEdit={() => {}} // No modal editing for temp cards
                     />
                   </div>
                 )}
@@ -143,7 +142,6 @@ const KanbanBoard: React.FC<KanbanBoardProps> = ({
                     index={index}
                     onUpdate={onUpdateCard}
                     onDelete={onDeleteCard}
-                    onEdit={() => {}} // Inline editing only
                   />
                 ))}
               </div>
@@ -169,7 +167,6 @@ const KanbanBoard: React.FC<KanbanBoardProps> = ({
                 index={-1}
                 onUpdate={handleTempCardUpdate}
                 onDelete={handleTempCardDelete}
-                onEdit={() => {}} // No modal editing for temp cards
               />
             </div>
           </div>
