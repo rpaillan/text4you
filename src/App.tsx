@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, DragEndEvent, DragStartEvent, DragOverlay } from '@dnd-kit/core';
 import { arrayMove } from '@dnd-kit/sortable';
 import KanbanBoard from './components/KanbanBoard';
-import EditCardModal from './components/EditCardModal';
+
 import { Card, CardStatus } from './types/index.js';
 import './App.scss';
 
@@ -10,7 +10,7 @@ function App(): JSX.Element {
   const [cards, setCards] = useState<Card[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-  const [editingCard, setEditingCard] = useState<Card | null>(null);
+
   const [draggedCard, setDraggedCard] = useState<Card | null>(null);
   
   const sensors = useSensors(
@@ -192,7 +192,7 @@ function App(): JSX.Element {
           card.id === id ? updatedCard : card
         )
       );
-      setEditingCard(null); // Close modal after successful update
+      // Card updated successfully
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred');
     }
@@ -239,7 +239,6 @@ function App(): JSX.Element {
           onAddCard={addCard}
           onUpdateCard={updateCard}
           onDeleteCard={deleteCard}
-          onEditCard={setEditingCard}
         />
         
         <DragOverlay>
@@ -286,13 +285,7 @@ function App(): JSX.Element {
         </DragOverlay>
       </DndContext>
       
-      {editingCard && (
-        <EditCardModal
-          card={editingCard}
-          onClose={() => setEditingCard(null)}
-          onSubmit={(updatedData) => updateCard(editingCard.id, updatedData)}
-        />
-      )}
+
     </div>
   );
 }

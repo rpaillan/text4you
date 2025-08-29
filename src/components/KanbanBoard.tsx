@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import Card from './Card';
-import AddCardModal from './AddCardModal';
 import { Card as CardType, CardStatus, CreateCardData } from '../types/index.js';
 import './KanbanBoard.scss';
 
@@ -9,18 +8,15 @@ interface KanbanBoardProps {
   onAddCard: (cardData: CreateCardData) => Promise<void>;
   onUpdateCard: (id: number, cardData: Partial<CreateCardData>) => Promise<void>;
   onDeleteCard: (id: number) => Promise<void>;
-  onEditCard: (card: CardType) => void;
 }
 
 const KanbanBoard: React.FC<KanbanBoardProps> = ({ 
   cards, 
   onAddCard, 
   onUpdateCard, 
-  onDeleteCard,
-  onEditCard
+  onDeleteCard
 }) => {
-  const [showAddModal, setShowAddModal] = useState<boolean>(false);
-  const [selectedStatus, setSelectedStatus] = useState<CardStatus>('idea');
+  const [tempCard, setTempCard] = useState<CardType | null>(null);
 
   const columns = [
     { id: 'idea' as const, title: 'Idea', color: '#6366f1' },
@@ -28,22 +24,64 @@ const KanbanBoard: React.FC<KanbanBoardProps> = ({
     { id: 'done' as const, title: 'Done', color: '#10b981' }
   ];
 
-  const handleAddCard = (cardData: CreateCardData): void => {
-    onAddCard({ ...cardData, status: selectedStatus });
-    setShowAddModal(false);
+  const startCreatingCard = (status: CardStatus): void => {
+    // Create a temporary card with placeholder content
+    const newTempCard: CardType = {
+      id: -1, // Temporary ID (negative to distinguish from real cards)
+      title: 'Click to edit title...',
+      description: 'Click to add description...',
+      status,
+      priority: 'medium',
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
+    };
+    
+    setTempCard(newTempCard);
   };
 
-  const openAddModal = (status: CardStatus): void => {
-    setSelectedStatus(status);
-    setShowAddModal(true);
+  const handleTempCardUpdate = async (_id: number, cardData: Partial<CreateCardData>): Promise<void> => {
+    if (!tempCard) return;
+    
+    // If both title and description are still placeholders, cancel creation
+    const title = cardData.title || tempCard.title;
+    const description = cardData.description || tempCard.description;
+    
+    if (title === 'Click to edit title...' && description === 'Click to add description...') {
+      setTempCard(null);
+      return;
+    }
+    
+    // If title is still placeholder but description was changed, use empty title
+    const finalTitle = title === 'Click to edit title...' ? '' : title;
+    const finalDescription = description === 'Click to add description...' ? undefined : description;
+    
+    // Only save if we have a meaningful title
+    if (finalTitle.trim()) {
+      const createData: CreateCardData = {
+        title: finalTitle,
+        description: finalDescription,
+        status: tempCard.status,
+        priority: cardData.priority || tempCard.priority
+      };
+      
+      await onAddCard(createData);
+    }
+    
+    setTempCard(null);
   };
+
+  const handleTempCardDelete = async (): Promise<void> => {
+    setTempCard(null);
+  };
+
+
 
   return (
     <div className="kanban-board">
       <div className="board-header">
         <button 
           className="add-card-btn"
-          onClick={() => openAddModal('idea')}
+          onClick={() => startCreatingCard('idea')}
         >
           + Add Card
         </button>
@@ -62,7 +100,7 @@ const KanbanBoard: React.FC<KanbanBoardProps> = ({
                 <span className="status-count">{columnCards.length}</span>
                 <button 
                   className="add-status-card-btn"
-                  onClick={() => openAddModal(column.id)}
+                  onClick={() => startCreatingCard(column.id)}
                   style={{ backgroundColor: column.color }}
                 >
                   + Add to {column.title}
@@ -70,6 +108,19 @@ const KanbanBoard: React.FC<KanbanBoardProps> = ({
               </div>
               
               <div className="status-cards">
+                {tempCard && tempCard.status === column.id && (
+                  <div className="temp-card-wrapper">
+                    <Card
+                      key={tempCard.id}
+                      card={tempCard}
+                      index={-1}
+                      onUpdate={handleTempCardUpdate}
+                      onDelete={handleTempCardDelete}
+                      onEdit={() => {}} // No modal editing for temp cards
+                    />
+                  </div>
+                )}
+                
                 {columnCards.map((card, index) => (
                   <Card
                     key={card.id}
@@ -77,7 +128,7 @@ const KanbanBoard: React.FC<KanbanBoardProps> = ({
                     index={index}
                     onUpdate={onUpdateCard}
                     onDelete={onDeleteCard}
-                    onEdit={onEditCard}
+                    onEdit={() => {}} // Inline editing only
                   />
                 ))}
               </div>
@@ -86,21 +137,29 @@ const KanbanBoard: React.FC<KanbanBoardProps> = ({
         })}
         
         {/* Show message if no cards exist */}
-        {cards.length === 0 && (
+        {cards.length === 0 && !tempCard && (
           <div className="empty-state">
             <h3>No cards yet</h3>
             <p>Click "Add Card" to create your first task!</p>
           </div>
         )}
+        
+        {/* Global temp card for when no sections exist */}
+        {cards.length === 0 && tempCard && (
+          <div className="global-card-creator">
+            <div className="temp-card-wrapper">
+              <Card
+                key={tempCard.id}
+                card={tempCard}
+                index={-1}
+                onUpdate={handleTempCardUpdate}
+                onDelete={handleTempCardDelete}
+                onEdit={() => {}} // No modal editing for temp cards
+              />
+            </div>
+          </div>
+        )}
       </div>
-
-      {showAddModal && (
-        <AddCardModal
-          onClose={() => setShowAddModal(false)}
-          onSubmit={handleAddCard}
-          initialStatus={selectedStatus}
-        />
-      )}
     </div>
   );
 };

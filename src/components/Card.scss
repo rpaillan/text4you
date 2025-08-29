@@ -100,6 +100,14 @@
       outline: none;
     }
   }
+  
+  // Special styling for placeholder text in temporary cards
+  .temp-card-wrapper & {
+    &:not([contenteditable="true"]) {
+      color: #715A5A;
+      font-style: italic;
+    }
+  }
 }
 
 .card-description-section {
@@ -155,6 +163,14 @@
   &.empty-description:not([contenteditable="true"]) {
     color: #715A5A;
     font-style: italic;
+  }
+  
+  // Special styling for placeholder text in temporary cards
+  .temp-card-wrapper & {
+    &:not([contenteditable="true"]) {
+      color: #715A5A;
+      font-style: italic;
+    }
   }
 }
 
