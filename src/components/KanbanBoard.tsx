@@ -100,7 +100,7 @@ const KanbanBoard: React.FC<KanbanBoardProps> = ({
             <div key={column.id} className='status-section'>
               <div
                 className='status-header'
-                style={{ borderLeftColor: column.color }}
+                style={{ borderBottomColor: column.color }}
               >
                 <h2 className='status-title'>{column.title}</h2>
                 <span className='status-count'>{columnCards.length}</span>

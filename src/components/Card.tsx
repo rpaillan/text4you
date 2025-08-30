@@ -169,7 +169,33 @@ const Card: React.FC<CardProps> = ({ columns, card, onUpdate, onDelete }) => {
   };
 
   const formatDate = (dateString: string): string => {
-    return new Date(dateString).toLocaleDateString();
+    // Calculate "time since" using native JS primitives
+    const now = new Date();
+    const date = new Date(dateString);
+    const diffMs = now.getTime() - date.getTime();
+
+    let sinceInWords = '';
+    const minutes = Math.floor(diffMs / (1000 * 60));
+    const hours = Math.floor(diffMs / (1000 * 60 * 60));
+    const days = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+    const months = Math.floor(diffMs / (1000 * 60 * 60 * 24 * 30));
+    const years = Math.floor(diffMs / (1000 * 60 * 60 * 24 * 365));
+
+    if (years > 0) {
+      sinceInWords = `${years} year${years > 1 ? 's' : ''} ago`;
+    } else if (months > 0) {
+      sinceInWords = `${months} month${months > 1 ? 's' : ''} ago`;
+    } else if (days > 0) {
+      sinceInWords = `${days} day${days > 1 ? 's' : ''} ago`;
+    } else if (hours > 0) {
+      sinceInWords = `${hours} hour${hours > 1 ? 's' : ''} ago`;
+    } else if (minutes > 0) {
+      sinceInWords = `${minutes} minute${minutes > 1 ? 's' : ''} ago`;
+    } else {
+      sinceInWords = 'just now';
+    }
+
+    return new Date(dateString).toLocaleDateString() + ' - ' + sinceInWords;
   };
 
   const handleDeleteClick = (e: React.MouseEvent): void => {
