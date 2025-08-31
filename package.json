@@ -11,7 +11,7 @@
     "format": "prettier --write \"src/**/*.{js,jsx,ts,tsx,json,css,scss,md}\"",
     "format:check": "prettier --check \"src/**/*.{js,jsx,ts,tsx,json,css,scss,md}\"",
     "preview": "vite preview",
-    "server": "tsx server.ts",
+    "server": "tsx server/server.ts",
     "start": "concurrently \"npm run server\" \"npm run dev\"",
     "type-check": "tsc --noEmit"
   },
