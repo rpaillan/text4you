@@ -1,0 +1,45 @@
+.task {
+  display: flex;
+  gap: 20px;
+  padding: 0 10px;
+
+  .task-header {
+    display: flex;
+    align-items: flex-start;
+    padding: 10px;
+    width: 100px;
+
+    .card-actions {
+      display: flex;
+      gap: 10px;
+    }
+  }
+
+  .task-content {
+    flex-grow: 1;
+    .card-description {
+      &:focus {
+        outline: none;
+      }
+    }
+  
+    .card-title {
+      &:focus {
+        outline: none;
+      }
+    }
+  }
+
+  .card-description {
+    &:focus {
+      outline: none;
+    }
+  }
+
+  .card-title {
+    &:focus {
+      outline: none;
+    }
+  }
+
+}

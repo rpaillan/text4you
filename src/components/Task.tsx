@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useMemo } from 'react';
 
 import {
   Card as CardType,
@@ -7,8 +7,9 @@ import {
   CardStatus,
   Column,
 } from '../types/index.js';
-import './Card.scss';
-import { NEW_CARD_TITLE, NEW_CARD_DESCRIPTION } from './KanbanBoard';
+import './Task.scss';
+import { NEW_CARD_TITLE, NEW_CARD_DESCRIPTION } from './KanbanBoard.js';
+import clsx from 'clsx';
 
 interface CardProps {
   columns: Column[];
@@ -18,7 +19,7 @@ interface CardProps {
   onDelete: (_id: number) => Promise<void>;
 }
 
-const Card: React.FC<CardProps> = ({ columns, card, onUpdate, onDelete }) => {
+const Task: React.FC<CardProps> = ({ columns, card, onUpdate, onDelete }) => {
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [isEditingDescription, setIsEditingDescription] = useState(false);
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
@@ -195,7 +196,7 @@ const Card: React.FC<CardProps> = ({ columns, card, onUpdate, onDelete }) => {
       sinceInWords = 'just now';
     }
 
-    return new Date(dateString).toLocaleDateString() + ' - ' + sinceInWords;
+    return new Date(dateString).toLocaleDateString() + ' (' + sinceInWords + ')';
   };
 
   const handleDeleteClick = (e: React.MouseEvent): void => {
@@ -243,18 +244,21 @@ const Card: React.FC<CardProps> = ({ columns, card, onUpdate, onDelete }) => {
     setShowStatusDropdown(false);
   };
 
+  const descriptionKlass = useMemo(() => clsx('card-description', {
+    'empty-description': !card.description,
+    'editing': isEditingDescription,
+  }), [isEditingDescription, card.description]);
+
+  const titleKlass = useMemo(() => clsx('card-title', {
+    'empty-title': !card.title,
+    'editing': isEditingTitle,
+  }), [isEditingTitle, card.title]);
+
   return (
     <>
-      <div className='card'>
-        <div className='card-header'>
-          <div className='card-header-id'>{card.id}</div>
-          <div className='card-priority'>
-            <span
-              className='priority-dot'
-              style={{ backgroundColor: getPriorityColor(card.priority) }}
-            />
-            {card.priority}
-          </div>
+      <div className='task'>
+        <div className='task-header'>
+          <div className='task-id'>{card.id}</div>
           <div className='card-actions'>
             <div className='status-dropdown-container'>
               <button
@@ -282,116 +286,107 @@ const Card: React.FC<CardProps> = ({ columns, card, onUpdate, onDelete }) => {
               🗑️
             </button>
           </div>
+          {/* <div className='task-priority'>{card.priority}</div>
+         <div className='task-status'>{card.status}</div>
+         <div className='task-created-at'>{formatDate(card.created_at)}</div>
+         <div className='task-updated-at'>{formatDate(card.updated_at)}</div> */}
         </div>
+        <div className='task-content'>
 
-        <div className='card-content'>
-          {/* Title Section */}
-          <div className='card-title-section'>
-            <div
-              className={`title-container ${isEditingTitle ? 'editing' : ''}`}
-            >
-              <div
-                ref={titleRef}
-                className={`card-title ${!card.title ? 'empty-title' : ''}`}
-                contentEditable={isEditingTitle}
-                suppressContentEditableWarning={true}
-                onKeyDown={handleTitleKeyPress}
-                onBlur={handleSaveTitle}
-                onClick={() => !isEditingTitle && setIsEditingTitle(true)}
-                data-placeholder={NEW_CARD_TITLE}
-                title={
-                  isEditingTitle
-                    ? 'Enter to save, Esc to cancel'
-                    : 'Click to edit'
-                }
-              >
-                {card.title
-                  ? card.title
-                  : !isEditingTitle
-                    ? NEW_CARD_TITLE
-                    : ''}
-              </div>
-            </div>
+          <div
+            ref={titleRef}
+            className={titleKlass}
+            contentEditable={isEditingTitle}
+            suppressContentEditableWarning={true}
+            onKeyDown={handleTitleKeyPress}
+            onBlur={handleSaveTitle}
+            onClick={() => !isEditingTitle && setIsEditingTitle(true)}
+            data-placeholder={NEW_CARD_TITLE}
+            title={
+              isEditingTitle
+                ? 'Enter to save, Esc to cancel'
+                : 'Click to edit'
+            }
+          >
+            {card.title
+              ? card.title
+              : !isEditingTitle
+                ? NEW_CARD_TITLE
+                : ''}
           </div>
 
-          {/* Description Section */}
-          <div className='card-description-section'>
-            <div
-              className={`description-container ${isEditingDescription ? 'editing' : ''}`}
-            >
-              <div
-                ref={descriptionRef}
-                className={`card-description ${!card.description ? 'empty-description' : ''}`}
-                contentEditable={isEditingDescription}
-                suppressContentEditableWarning={true}
-                onKeyDown={handleDescriptionKeyPress}
-                onBlur={handleSaveDescription}
-                onClick={() =>
-                  !isEditingDescription && setIsEditingDescription(true)
-                }
-                title={
-                  isEditingDescription
-                    ? 'Ctrl+Enter to save, Esc to cancel'
-                    : 'Click to edit'
-                }
-                style={{ whiteSpace: 'pre-wrap' }}
-                data-placeholder={NEW_CARD_DESCRIPTION}
-                dangerouslySetInnerHTML={{
-                  __html: card.description
-                    ? card.description.replace(/\n/g, '<br>')
-                    : !isEditingDescription
-                      ? NEW_CARD_DESCRIPTION
-                      : '',
-                }}
-              />
-            </div>
-          </div>
 
-          <div className='card-footer'>
-            <span className='card-date'>
-              Created: {formatDate(card.created_at)}
-            </span>
-          </div>
+
+          <div
+            ref={descriptionRef}
+            className={descriptionKlass}
+            contentEditable={isEditingDescription}
+            suppressContentEditableWarning={true}
+            onKeyDown={handleDescriptionKeyPress}
+            onBlur={handleSaveDescription}
+            onClick={() =>
+              !isEditingDescription && setIsEditingDescription(true)
+            }
+            title={
+              isEditingDescription
+                ? 'Ctrl+Enter to save, Esc to cancel'
+                : 'Click to edit'
+            }
+            style={{ whiteSpace: 'pre-wrap' }}
+            data-placeholder={NEW_CARD_DESCRIPTION}
+            dangerouslySetInnerHTML={{
+              __html: card.description
+                ? card.description.replace(/\n/g, '<br>')
+                : !isEditingDescription
+                  ? NEW_CARD_DESCRIPTION
+                  : '',
+            }}
+          />
         </div>
       </div>
 
+
+
+
       {/* Delete Confirmation Dialog */}
-      {showDeleteConfirmation && (
-        <div
-          className='delete-confirmation-overlay'
-          onClick={handleOverlayClick}
-        >
+      {
+        showDeleteConfirmation && (
           <div
-            className='delete-confirmation-dialog'
-            onKeyDown={handleConfirmationKeyPress}
-            tabIndex={-1}
-            ref={confirmationDialogRef}
+            className='delete-confirmation-overlay'
+            onClick={handleOverlayClick}
           >
-            <div className='confirmation-header'>
-              <h3>Confirm Delete</h3>
-            </div>
-            <div className='confirmation-content'>
-              <p>
-                Are you sure you want to delete <strong>"{card.title}"</strong>?
-              </p>
-              <p>This action cannot be undone.</p>
-            </div>
-            <div className='confirmation-actions'>
-              <button className='cancel-btn' onClick={handleCancelDelete}>
-                Cancel
-              </button>
-              <button
-                className='confirm-delete-btn'
-                onClick={handleConfirmDelete}
-              >
-                Delete
-              </button>
+            <div
+              className='delete-confirmation-dialog'
+              onKeyDown={handleConfirmationKeyPress}
+              tabIndex={-1}
+              ref={confirmationDialogRef}
+            >
+              <div className='confirmation-header'>
+                <h3>Confirm Delete</h3>
+              </div>
+              <div className='confirmation-content'>
+                <p>
+                  Are you sure you want to delete <strong>"{card.title}"</strong>?
+                </p>
+                <p>This action cannot be undone.</p>
+              </div>
+              <div className='confirmation-actions'>
+                <button className='cancel-btn' onClick={handleCancelDelete}>
+                  Cancel
+                </button>
+                <button
+                  className='confirm-delete-btn'
+                  onClick={handleConfirmDelete}
+                >
+                  Delete
+                </button>
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        )
+      }
     </>
   );
 };
 
-export default Card;
+export default Task;
