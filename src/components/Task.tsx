@@ -1,52 +1,29 @@
 import React, { useState, useRef, useEffect, useMemo } from 'react';
 
-import {
-  Card as CardType,
-  Priority,
-  CreateCardData,
-  CardStatus,
-  Column,
-} from '../types/index.js';
+import { SingleTask } from '../types/index.js';
 import './Task.scss';
-import { NEW_CARD_TITLE, NEW_CARD_DESCRIPTION } from './KanbanBoard.js';
+import { NEW_CARD_DESCRIPTION } from './Board.js';
 import clsx from 'clsx';
+import { useBuckets, useKanbanActions } from '../store/kanbanStore.js';
 
 interface CardProps {
-  columns: Column[];
-  card: CardType;
+  card: SingleTask;
   index: number;
-  onUpdate: (_id: number, _cardData: Partial<CreateCardData>) => Promise<void>;
-  onDelete: (_id: number) => Promise<void>;
 }
 
-const Task: React.FC<CardProps> = ({ columns, card, onUpdate, onDelete }) => {
-  const [isEditingTitle, setIsEditingTitle] = useState(false);
+export const Task: React.FC<CardProps> = ({ card }) => {
   const [isEditingDescription, setIsEditingDescription] = useState(false);
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
   const [showStatusDropdown, setShowStatusDropdown] = useState(false);
 
-  const titleRef = useRef<HTMLHeadingElement>(null);
   const descriptionRef = useRef<HTMLDivElement>(null);
-  const originalTitle = useRef<string>(card.title);
   const originalDescription = useRef<string>(card.description || '');
   const confirmationDialogRef = useRef<HTMLDivElement>(null);
 
-  const handleSaveTitle = async () => {
-    const currentTitle = titleRef.current?.textContent?.trim() || '';
-    if (currentTitle && currentTitle !== card.title) {
-      await onUpdate(card.id, { title: currentTitle });
-    }
-    setIsEditingTitle(false);
-  };
+  const buckets: string[] = useBuckets();
+  const { updateCard, deleteCard } = useKanbanActions();
 
-  const handleCancelTitle = () => {
-    if (titleRef.current) {
-      titleRef.current.textContent = originalTitle.current;
-    }
-    setIsEditingTitle(false);
-  };
-
-  const handleSaveDescription = async () => {
+  const handleSaveDescription = () => {
     // lets try to store html content instead of plain text.
 
     if (!descriptionRef.current) return;
@@ -55,7 +32,10 @@ const Task: React.FC<CardProps> = ({ columns, card, onUpdate, onDelete }) => {
     const htmlContent = descriptionRef.current.innerHTML;
 
     if (htmlContent !== (card.description || '')) {
-      await onUpdate(card.id, { description: htmlContent || undefined });
+      updateCard(card.id, {
+        description: htmlContent || undefined,
+        bucket: card.bucket,
+      });
     }
     setIsEditingDescription(false);
   };
@@ -74,16 +54,6 @@ const Task: React.FC<CardProps> = ({ columns, card, onUpdate, onDelete }) => {
     setIsEditingDescription(false);
   };
 
-  const handleTitleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') {
-      e.preventDefault();
-      handleSaveTitle();
-    } else if (e.key === 'Escape') {
-      e.preventDefault();
-      handleCancelTitle();
-    }
-  };
-
   const handleDescriptionKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && e.ctrlKey) {
       e.preventDefault();
@@ -96,26 +66,8 @@ const Task: React.FC<CardProps> = ({ columns, card, onUpdate, onDelete }) => {
 
   // Effect to update refs when card data changes
   useEffect(() => {
-    originalTitle.current = card.title;
     originalDescription.current = card.description || '';
-  }, [card.title, card.description]);
-
-  // Effect to focus and select content when editing starts
-  useEffect(() => {
-    if (isEditingTitle && titleRef.current) {
-      if (card.title === NEW_CARD_TITLE) {
-        titleRef.current.innerHTML = '';
-      }
-
-      titleRef.current.focus();
-      // Select all text
-      const range = document.createRange();
-      range.selectNodeContents(titleRef.current);
-      const selection = window.getSelection();
-      selection?.removeAllRanges();
-      selection?.addRange(range);
-    }
-  }, [isEditingTitle]);
+  }, [card.description]);
 
   useEffect(() => {
     if (isEditingDescription && descriptionRef.current) {
@@ -156,61 +108,18 @@ const Task: React.FC<CardProps> = ({ columns, card, onUpdate, onDelete }) => {
     }
   }, [showStatusDropdown]);
 
-  const getPriorityColor = (priority: Priority): string => {
-    switch (priority) {
-      case 'high':
-        return '#ef4444';
-      case 'medium':
-        return '#f59e0b';
-      case 'low':
-        return '#10b981';
-      default:
-        return '#6b7280';
-    }
-  };
-
-  const formatDate = (dateString: string): string => {
-    // Calculate "time since" using native JS primitives
-    const now = new Date();
-    const date = new Date(dateString);
-    const diffMs = now.getTime() - date.getTime();
-
-    let sinceInWords = '';
-    const minutes = Math.floor(diffMs / (1000 * 60));
-    const hours = Math.floor(diffMs / (1000 * 60 * 60));
-    const days = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-    const months = Math.floor(diffMs / (1000 * 60 * 60 * 24 * 30));
-    const years = Math.floor(diffMs / (1000 * 60 * 60 * 24 * 365));
-
-    if (years > 0) {
-      sinceInWords = `${years} year${years > 1 ? 's' : ''} ago`;
-    } else if (months > 0) {
-      sinceInWords = `${months} month${months > 1 ? 's' : ''} ago`;
-    } else if (days > 0) {
-      sinceInWords = `${days} day${days > 1 ? 's' : ''} ago`;
-    } else if (hours > 0) {
-      sinceInWords = `${hours} hour${hours > 1 ? 's' : ''} ago`;
-    } else if (minutes > 0) {
-      sinceInWords = `${minutes} minute${minutes > 1 ? 's' : ''} ago`;
-    } else {
-      sinceInWords = 'just now';
-    }
-
-    return new Date(dateString).toLocaleDateString() + ' (' + sinceInWords + ')';
-  };
-
   const handleDeleteClick = (e: React.MouseEvent): void => {
     e.stopPropagation();
     if (card.id === -1) {
       // if it's a temporary card, let remove without confirmation
-      onDelete(card.id);
+      deleteCard(card.id);
       return;
     }
     setShowDeleteConfirmation(true);
   };
 
   const handleConfirmDelete = (): void => {
-    onDelete(card.id);
+    deleteCard(card.id);
     setShowDeleteConfirmation(false);
   };
 
@@ -237,54 +146,53 @@ const Task: React.FC<CardProps> = ({ columns, card, onUpdate, onDelete }) => {
     setShowStatusDropdown(!showStatusDropdown);
   };
 
-  const handleStatusChange = async (newStatus: CardStatus): Promise<void> => {
-    if (newStatus !== card.status) {
-      await onUpdate(card.id, { status: newStatus });
+  const handleStatusChange = (newBucket: string): void => {
+    if (newBucket !== card.bucket) {
+      updateCard(card.id, { bucket: newBucket });
     }
     setShowStatusDropdown(false);
   };
 
-  const descriptionKlass = useMemo(() => clsx('card-description', {
-    'empty-description': !card.description,
-    'editing': isEditingDescription,
-  }), [isEditingDescription, card.description]);
-
-  const titleKlass = useMemo(() => clsx('card-title', {
-    'empty-title': !card.title,
-    'editing': isEditingTitle,
-  }), [isEditingTitle, card.title]);
+  const descriptionKlass = useMemo(
+    () =>
+      clsx('card-description', {
+        'empty-description': !card.description,
+        editing: isEditingDescription,
+      }),
+    [isEditingDescription, card.description]
+  );
 
   return (
     <>
       <div className='task'>
         <div className='task-header'>
           <div className='task-id'>{card.id}</div>
-          <div className='card-actions'>
+          <div className='card-actions' style={{ display: 'none' }}>
             <div className='status-dropdown-container'>
-              <button
+              <div
                 className='status-btn'
                 onClick={handleStatusDropdownClick}
                 title='Move to different status'
               >
-                📋
-              </button>
+                status
+              </div>
               {showStatusDropdown && (
                 <div className='status-dropdown'>
-                  {columns.map(column => (
+                  {buckets.map(bucket => (
                     <div
-                      key={column.id}
-                      className={`status-option ${card.status === column.id ? 'current' : ''}`}
-                      onClick={() => handleStatusChange(column.id)}
+                      key={bucket}
+                      className={`status-option ${card.bucket === bucket ? 'current' : ''}`}
+                      onClick={() => handleStatusChange(bucket)}
                     >
-                      {column.title}
+                      {bucket}
                     </div>
                   ))}
                 </div>
               )}
             </div>
-            <button className='delete-btn' onClick={handleDeleteClick}>
-              🗑️
-            </button>
+            <div className='delete-btn' onClick={handleDeleteClick}>
+              del
+            </div>
           </div>
           {/* <div className='task-priority'>{card.priority}</div>
          <div className='task-status'>{card.status}</div>
@@ -292,31 +200,6 @@ const Task: React.FC<CardProps> = ({ columns, card, onUpdate, onDelete }) => {
          <div className='task-updated-at'>{formatDate(card.updated_at)}</div> */}
         </div>
         <div className='task-content'>
-
-          <div
-            ref={titleRef}
-            className={titleKlass}
-            contentEditable={isEditingTitle}
-            suppressContentEditableWarning={true}
-            onKeyDown={handleTitleKeyPress}
-            onBlur={handleSaveTitle}
-            onClick={() => !isEditingTitle && setIsEditingTitle(true)}
-            data-placeholder={NEW_CARD_TITLE}
-            title={
-              isEditingTitle
-                ? 'Enter to save, Esc to cancel'
-                : 'Click to edit'
-            }
-          >
-            {card.title
-              ? card.title
-              : !isEditingTitle
-                ? NEW_CARD_TITLE
-                : ''}
-          </div>
-
-
-
           <div
             ref={descriptionRef}
             className={descriptionKlass}
@@ -345,48 +228,42 @@ const Task: React.FC<CardProps> = ({ columns, card, onUpdate, onDelete }) => {
         </div>
       </div>
 
-
-
-
       {/* Delete Confirmation Dialog */}
-      {
-        showDeleteConfirmation && (
+      {showDeleteConfirmation && (
+        <div
+          className='delete-confirmation-overlay'
+          onClick={handleOverlayClick}
+        >
           <div
-            className='delete-confirmation-overlay'
-            onClick={handleOverlayClick}
+            className='delete-confirmation-dialog'
+            onKeyDown={handleConfirmationKeyPress}
+            tabIndex={-1}
+            ref={confirmationDialogRef}
           >
-            <div
-              className='delete-confirmation-dialog'
-              onKeyDown={handleConfirmationKeyPress}
-              tabIndex={-1}
-              ref={confirmationDialogRef}
-            >
-              <div className='confirmation-header'>
-                <h3>Confirm Delete</h3>
-              </div>
-              <div className='confirmation-content'>
-                <p>
-                  Are you sure you want to delete <strong>"{card.title}"</strong>?
-                </p>
-                <p>This action cannot be undone.</p>
-              </div>
-              <div className='confirmation-actions'>
-                <button className='cancel-btn' onClick={handleCancelDelete}>
-                  Cancel
-                </button>
-                <button
-                  className='confirm-delete-btn'
-                  onClick={handleConfirmDelete}
-                >
-                  Delete
-                </button>
-              </div>
+            <div className='confirmation-header'>
+              <h3>Confirm Delete</h3>
+            </div>
+            <div className='confirmation-content'>
+              <p>
+                Are you sure you want to delete task{' '}
+                <strong>"{card.id}"</strong>?
+              </p>
+              <p>This action cannot be undone.</p>
+            </div>
+            <div className='confirmation-actions'>
+              <button className='cancel-btn' onClick={handleCancelDelete}>
+                Cancel
+              </button>
+              <button
+                className='confirm-delete-btn'
+                onClick={handleConfirmDelete}
+              >
+                Delete
+              </button>
             </div>
           </div>
-        )
-      }
+        </div>
+      )}
     </>
   );
 };
-
-export default Task;

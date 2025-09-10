@@ -1,99 +1,26 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
 
-import KanbanBoard from './components/KanbanBoard';
-
-import { Card } from './types/index.js';
+import KanbanBoard from './components/Board';
+import {
+  useCards,
+  useLoading,
+  useError,
+  useKanbanActions,
+} from './store/kanbanStore';
 import './App.scss';
 
 function App(): React.JSX.Element {
-  const [cards, setCards] = useState<Card[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
+  const cards = useCards();
+  const loading = useLoading();
+  const error = useError();
+  const { initializeWithSampleData } = useKanbanActions();
 
   useEffect(() => {
-    fetchCards();
-  }, []);
-
-  const fetchCards = async (): Promise<void> => {
-    try {
-      const response = await fetch('/api/cards');
-      if (!response.ok) {
-        throw new Error('Failed to fetch cards');
-      }
-      const data: Card[] = await response.json();
-      setCards(data);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred');
-    } finally {
-      setLoading(false);
+    // Initialize with sample data if no cards exist
+    if (cards.length === 0) {
+      initializeWithSampleData();
     }
-  };
-
-  const addCard = async (
-    cardData: Omit<Card, 'id' | 'created_at' | 'updated_at'>
-  ): Promise<void> => {
-    try {
-      const response = await fetch('/api/cards', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(cardData),
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to create card');
-      }
-
-      const newCard: Card = await response.json();
-      setCards(prevCards => [newCard, ...prevCards]);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred');
-    }
-  };
-
-  const updateCard = async (
-    id: number,
-    cardData: Partial<Omit<Card, 'id' | 'created_at' | 'updated_at'>>
-  ): Promise<void> => {
-    try {
-      const response = await fetch(`/api/cards/${id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(cardData),
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to update card');
-      }
-
-      const updatedCard: Card = await response.json();
-      setCards(prevCards =>
-        prevCards.map(card => (card.id === id ? updatedCard : card))
-      );
-      // Card updated successfully
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred');
-    }
-  };
-
-  const deleteCard = async (id: number): Promise<void> => {
-    try {
-      const response = await fetch(`/api/cards/${id}`, {
-        method: 'DELETE',
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to delete card');
-      }
-
-      setCards(prevCards => prevCards.filter(card => card.id !== id));
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred');
-    }
-  };
+  }, [cards.length, initializeWithSampleData]);
 
   if (loading) {
     return <div className='loading'>Loading...</div>;
@@ -105,12 +32,7 @@ function App(): React.JSX.Element {
 
   return (
     <div className='app'>
-      <KanbanBoard
-        cards={cards}
-        onAddCard={addCard}
-        onUpdateCard={updateCard}
-        onDeleteCard={deleteCard}
-      />
+      <KanbanBoard cards={cards} />
     </div>
   );
 }

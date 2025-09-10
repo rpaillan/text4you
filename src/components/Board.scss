@@ -1,0 +1,23 @@
+.kanban-board {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 10px;
+
+  .bucket-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+
+    .bucket-wrapper {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+
+      .bucket-tasks {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+    }
+  }
+}
