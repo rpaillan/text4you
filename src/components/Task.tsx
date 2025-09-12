@@ -12,7 +12,9 @@ interface CardProps {
 }
 
 export const Task: React.FC<CardProps> = ({ card }) => {
-  const [isEditingDescription, setIsEditingDescription] = useState(false);
+  const [isEditingDescription, setIsEditingDescription] = useState(
+    card.id === -1
+  );
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
   const [showStatusDropdown, setShowStatusDropdown] = useState(false);
 
@@ -72,6 +74,13 @@ export const Task: React.FC<CardProps> = ({ card }) => {
   useEffect(() => {
     originalDescription.current = card.description || '';
   }, [card.description]);
+
+  // Effect to automatically enter edit mode for new tasks
+  useEffect(() => {
+    if (card.id === -1 && !isEditingDescription) {
+      setIsEditingDescription(true);
+    }
+  }, [card.id, isEditingDescription]);
 
   useEffect(() => {
     if (isEditingDescription && descriptionRef.current) {
@@ -225,9 +234,7 @@ export const Task: React.FC<CardProps> = ({ card }) => {
             dangerouslySetInnerHTML={{
               __html: card.description
                 ? card.description.replace(/\n/g, '<br>')
-                : !isEditingDescription
-                  ? NEW_CARD_DESCRIPTION
-                  : '',
+                : '',
             }}
           />
         </div>

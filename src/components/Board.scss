@@ -13,6 +13,11 @@
       flex-direction: column;
       gap: 10px;
 
+      button {
+        margin-left: 10px;
+        padding: 0 5px;
+      }
+
       .bucket-tasks {
         display: flex;
         flex-direction: column;
