@@ -21,7 +21,7 @@ export const Task: React.FC<CardProps> = ({ card }) => {
   const confirmationDialogRef = useRef<HTMLDivElement>(null);
 
   const buckets: string[] = useBuckets();
-  const { updateCard, deleteCard } = useKanbanActions();
+  const { updateTask, deleteTask } = useKanbanActions();
 
   const handleSaveDescription = () => {
     // lets try to store html content instead of plain text.
@@ -31,8 +31,12 @@ export const Task: React.FC<CardProps> = ({ card }) => {
     // Convert HTML content to plain text with newlines
     const htmlContent = descriptionRef.current.innerHTML;
 
+    if (htmlContent.trim() === '') {
+      deleteTask(card.id);
+      return;
+    }
     if (htmlContent !== (card.description || '')) {
-      updateCard(card.id, {
+      updateTask(card.id, {
         description: htmlContent || undefined,
         bucket: card.bucket,
       });
@@ -55,7 +59,7 @@ export const Task: React.FC<CardProps> = ({ card }) => {
   };
 
   const handleDescriptionKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && e.ctrlKey) {
+    if (e.key === 's' && e.ctrlKey) {
       e.preventDefault();
       handleSaveDescription();
     } else if (e.key === 'Escape') {
@@ -112,14 +116,14 @@ export const Task: React.FC<CardProps> = ({ card }) => {
     e.stopPropagation();
     if (card.id === -1) {
       // if it's a temporary card, let remove without confirmation
-      deleteCard(card.id);
+      deleteTask(card.id);
       return;
     }
     setShowDeleteConfirmation(true);
   };
 
   const handleConfirmDelete = (): void => {
-    deleteCard(card.id);
+    deleteTask(card.id);
     setShowDeleteConfirmation(false);
   };
 
@@ -148,7 +152,7 @@ export const Task: React.FC<CardProps> = ({ card }) => {
 
   const handleStatusChange = (newBucket: string): void => {
     if (newBucket !== card.bucket) {
-      updateCard(card.id, { bucket: newBucket });
+      updateTask(card.id, { bucket: newBucket });
     }
     setShowStatusDropdown(false);
   };
@@ -201,6 +205,7 @@ export const Task: React.FC<CardProps> = ({ card }) => {
         </div>
         <div className='task-content'>
           <div
+            data-task-id={card.id}
             ref={descriptionRef}
             className={descriptionKlass}
             contentEditable={isEditingDescription}
