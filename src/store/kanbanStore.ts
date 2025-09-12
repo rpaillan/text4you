@@ -135,6 +135,24 @@ export const useKanbanStore = create<KanbanStore>()(
               'updateCard'
             );
           } else {
+            // before updating make sure is has changes.
+            // compare only existing fields on cardData.
+            const card = get().cards.find(card => card.id === id);
+            if (!card) {
+              return;
+            }
+            let haChanges = false;
+            Object.keys(cardData).forEach(key => {
+              if (
+                cardData[key as keyof typeof cardData] !==
+                card[key as keyof typeof cardData]
+              ) {
+                haChanges = true;
+              }
+            });
+            if (!haChanges) {
+              return;
+            }
             set(
               state => ({
                 cards: state.cards.map(card =>
