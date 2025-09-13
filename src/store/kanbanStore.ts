@@ -7,18 +7,22 @@ interface KanbanState {
   buckets: string[];
   loading: boolean;
   error: string | null;
-  nextId: number;
 }
 
+const generateUUID = () => {
+  return crypto.randomUUID();
+};
+
 interface KanbanActions {
+  editingTask: (taskId: string) => void;
   // Card CRUD operations
   addTempTask: (bucket: string) => void;
-  addTaskAfter: (afterTaskId: number, bucket: string) => void;
+  addTaskAfter: (afterTaskId: string, bucket: string) => void;
   updateTask: (
-    id: number,
+    id: string,
     cardData: Partial<Omit<SingleTask, 'id' | 'created_at' | 'updated_at'>>
   ) => void;
-  deleteTask: (id: number) => void;
+  deleteTask: (id: string) => void;
 
   // Utility actions
   setLoading: (loading: boolean) => void;
@@ -34,7 +38,7 @@ type KanbanStore = KanbanState & KanbanActions;
 // Sample data for initial state
 const sampleTasks: SingleTask[] = [
   {
-    id: 1,
+    id: generateUUID(),
     description: 'Create wireframes and mockups for the new dashboard',
     bucket: 'in_progress',
     parent_id: null,
@@ -44,7 +48,7 @@ const sampleTasks: SingleTask[] = [
     updated_at: new Date(Date.now() - 86400000).toISOString(), // 1 day ago
   },
   {
-    id: 2,
+    id: generateUUID(),
     description: 'Configure PostgreSQL database and create initial tables',
     bucket: 'done',
     parent_id: null,
@@ -54,7 +58,7 @@ const sampleTasks: SingleTask[] = [
     updated_at: new Date(Date.now() - 86400000).toISOString(), // 1 day ago
   },
   {
-    id: 3,
+    id: generateUUID(),
     description: 'Add user login and registration functionality',
     bucket: 'idea',
     parent_id: null,
@@ -64,7 +68,7 @@ const sampleTasks: SingleTask[] = [
     updated_at: new Date(Date.now() - 86400000).toISOString(), // 1 day ago
   },
   {
-    id: 4,
+    id: generateUUID(),
     description: 'Document all REST API endpoints with examples',
     bucket: 'idea',
     parent_id: null,
@@ -74,7 +78,7 @@ const sampleTasks: SingleTask[] = [
     updated_at: new Date().toISOString(),
   },
   {
-    id: 5,
+    id: generateUUID(),
     description: 'Profile and improve application performance',
     bucket: 'in_progress',
     parent_id: null,
@@ -96,12 +100,20 @@ export const useKanbanStore = create<KanbanStore>()(
         error: null,
         nextId: 6, // Start after sample data IDs
 
+        editingTask: (taskId: string) => {
+          const task = get().tasks.find(task => task.id === taskId);
+          if (!task) return;
+          set(state => ({
+            tasks: state.tasks.map(task =>
+              task.id === taskId
+                ? { ...task, editing: true }
+                : { ...task, editing: false }
+            ),
+          }));
+        },
+
         addTempTask: (bucket: string) => {
           // check that do not exist other task with id -1
-          const existingTempCard = get().tasks.find(card => card.id === -1);
-          if (existingTempCard) {
-            return;
-          }
 
           // Find the highest order in this bucket and add 1000
           const tasksInBucket = get().tasks.filter(
@@ -113,7 +125,7 @@ export const useKanbanStore = create<KanbanStore>()(
               : 0;
 
           const newTempCard: SingleTask = {
-            id: -1, // Temporary ID (negative to distinguish from real cards)
+            id: generateUUID(),
             parent_id: null,
             bucket: bucket,
             tags: [],
@@ -133,13 +145,7 @@ export const useKanbanStore = create<KanbanStore>()(
           );
         },
 
-        addTaskAfter: (afterTaskId: number, bucket: string) => {
-          // check that do not exist other task with id -1
-          const existingTempCard = get().tasks.find(card => card.id === -1);
-          if (existingTempCard) {
-            return;
-          }
-
+        addTaskAfter: (afterTaskId: string, bucket: string) => {
           const tasks = get().tasks;
           const afterTask = tasks.find(t => t.id === afterTaskId);
           if (!afterTask) return;
@@ -162,7 +168,7 @@ export const useKanbanStore = create<KanbanStore>()(
           }
 
           const newTempCard: SingleTask = {
-            id: -1,
+            id: generateUUID(),
             parent_id: null,
             bucket,
             tags: [],
@@ -170,6 +176,7 @@ export const useKanbanStore = create<KanbanStore>()(
             order: newOrder,
             created_at: new Date().toISOString(),
             updated_at: new Date().toISOString(),
+            editing: true,
           };
 
           set(
@@ -183,75 +190,46 @@ export const useKanbanStore = create<KanbanStore>()(
         },
 
         updateTask: (
-          id: number,
+          id: string,
           cardData: Partial<
             Omit<SingleTask, 'id' | 'created_at' | 'updated_at'>
           >
         ) => {
           const now = new Date().toISOString();
 
-          if (id === -1) {
-            console.log('updateCard', id, cardData);
-            if (cardData.description?.trim() === '') {
-              // if not text then remove task.
-              set(
-                state => ({
-                  tasks: state.tasks.filter(card => card.id !== id),
-                }),
-                false,
-                'updateCard'
-              );
-              return;
-            }
-            const { nextId } = get();
-            set(
-              state => ({
-                tasks: state.tasks.map(card =>
-                  card.id === id && cardData.bucket === card.bucket
-                    ? { ...card, ...cardData, updated_at: now, id: nextId }
-                    : card
-                ),
-                nextId: nextId + 1,
-                error: null,
-              }),
-              false,
-              'updateCard'
-            );
-          } else {
-            // before updating make sure is has changes.
-            // compare only existing fields on cardData.
-            const card = get().tasks.find(card => card.id === id);
-            if (!card) {
-              return;
-            }
-            let haChanges = false;
-            Object.keys(cardData).forEach(key => {
-              if (
-                cardData[key as keyof typeof cardData] !==
-                card[key as keyof typeof cardData]
-              ) {
-                haChanges = true;
-              }
-            });
-            if (!haChanges) {
-              return;
-            }
-            set(
-              state => ({
-                tasks: state.tasks.map(card =>
-                  card.id === id
-                    ? { ...card, ...cardData, updated_at: now }
-                    : card
-                ),
-                error: null,
-              }),
-              false,
-              'updateCard'
-            );
+          // before updating make sure is has changes.
+          // compare only existing fields on cardData.
+          const card = get().tasks.find(card => card.id === id);
+          if (!card) {
+            return;
           }
+          let haChanges = false;
+          Object.keys(cardData).forEach(key => {
+            if (
+              cardData[key as keyof typeof cardData] !==
+              card[key as keyof typeof cardData]
+            ) {
+              haChanges = true;
+            }
+          });
+          if (!haChanges) {
+            return;
+          }
+          set(
+            state => ({
+              tasks: state.tasks.map(card =>
+                card.id === id
+                  ? { ...card, ...cardData, updated_at: now }
+                  : card
+              ),
+              error: null,
+            }),
+            false,
+            'updateCard'
+          );
         },
 
-        deleteTask: (id: number) => {
+        deleteTask: (id: string) => {
           set(
             state => ({
               tasks: state.tasks.filter(card => card.id !== id),
@@ -283,7 +261,6 @@ export const useKanbanStore = create<KanbanStore>()(
               ),
               loading: false,
               error: null,
-              nextId: Math.max(...sampleTasks.map(card => card.id)) + 1,
             },
             false,
             'initializeWithSampleData'
@@ -293,14 +270,13 @@ export const useKanbanStore = create<KanbanStore>()(
       {
         name: 'kanban-storage', // unique name for localStorage key
         partialize: state => ({
-          cards: state.tasks,
+          tasks: state.tasks,
           buckets: state.buckets,
-          nextId: state.nextId,
-        }), // only persist cards and nextId
+        }),
       }
     ),
     {
-      name: 'kanban-store', // name for devtools
+      name: 'tasks-store', // name for devtools
     }
   )
 );

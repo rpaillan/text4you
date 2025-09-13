@@ -23,9 +23,7 @@ const KanbanBoard: React.FC<KanbanBoardProps> = ({ cards }) => {
     )?.dataset.taskId;
 
     if (currentTaskId) {
-      const currentTask = cards.find(
-        card => card.id === parseInt(currentTaskId)
-      );
+      const currentTask = cards.find(card => card.id === currentTaskId);
       return currentTask || null;
     }
     return null;
@@ -76,7 +74,7 @@ const KanbanBoard: React.FC<KanbanBoardProps> = ({ cards }) => {
                   .filter(card => card.bucket === bucket)
                   .sort((a, b) => a.order - b.order)
                   .map((card, index) => (
-                    <Task key={card.id} card={card} index={index} />
+                    <Task key={card.id} task={card} index={index} />
                   ))}
               </div>
             </div>

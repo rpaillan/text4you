@@ -4,46 +4,38 @@ import { SingleTask } from '../types/index.js';
 import './Task.scss';
 import { NEW_CARD_DESCRIPTION } from './Board.js';
 import clsx from 'clsx';
-import { useBuckets, useKanbanActions } from '../store/kanbanStore.js';
+import { useKanbanActions, useKanbanStore } from '../store/kanbanStore.js';
 
 interface CardProps {
-  card: SingleTask;
+  task: SingleTask;
   index: number;
 }
 
-export const Task: React.FC<CardProps> = ({ card }) => {
-  const [isEditingDescription, setIsEditingDescription] = useState(
-    card.id === -1
-  );
-  const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
-  const [showStatusDropdown, setShowStatusDropdown] = useState(false);
-
+export const Task: React.FC<CardProps> = ({ task }) => {
   const descriptionRef = useRef<HTMLDivElement>(null);
-  const originalDescription = useRef<string>(card.description || '');
-  const confirmationDialogRef = useRef<HTMLDivElement>(null);
+  const originalDescription = useRef<string>(task.description || '');
 
-  const buckets: string[] = useBuckets();
   const { updateTask, deleteTask } = useKanbanActions();
+  const editingTask = useKanbanStore(state => state.editingTask);
 
   const handleSaveDescription = () => {
-    // lets try to store html content instead of plain text.
-
     if (!descriptionRef.current) return;
 
     // Convert HTML content to plain text with newlines
     const htmlContent = descriptionRef.current.innerHTML;
 
     if (htmlContent.trim() === '') {
-      deleteTask(card.id);
+      deleteTask(task.id);
       return;
     }
-    if (htmlContent !== (card.description || '')) {
-      updateTask(card.id, {
+
+    if (htmlContent !== (task.description || '')) {
+      updateTask(task.id, {
         description: htmlContent || undefined,
-        bucket: card.bucket,
+        bucket: task.bucket,
+        editing: false,
       });
     }
-    setIsEditingDescription(false);
   };
 
   const handleCancelDescription = () => {
@@ -57,7 +49,9 @@ export const Task: React.FC<CardProps> = ({ card }) => {
         descriptionRef.current.textContent = '';
       }
     }
-    setIsEditingDescription(false);
+    updateTask(task.id, {
+      editing: false,
+    });
   };
 
   const handleDescriptionKeyPress = (e: React.KeyboardEvent) => {
@@ -72,23 +66,11 @@ export const Task: React.FC<CardProps> = ({ card }) => {
 
   // Effect to update refs when card data changes
   useEffect(() => {
-    originalDescription.current = card.description || '';
-  }, [card.description]);
-
-  // Effect to automatically enter edit mode for new tasks
-  useEffect(() => {
-    if (card.id === -1 && !isEditingDescription) {
-      setIsEditingDescription(true);
-    }
-  }, [card.id, isEditingDescription]);
+    originalDescription.current = task.description || '';
+  }, [task.description]);
 
   useEffect(() => {
-    if (isEditingDescription && descriptionRef.current) {
-      // If the content is placeholder text, clear it
-      if (descriptionRef.current.textContent === NEW_CARD_DESCRIPTION) {
-        descriptionRef.current.innerHTML = '';
-      }
-
+    if (task.editing && descriptionRef.current) {
       descriptionRef.current.focus();
       // Place cursor at end
       const range = document.createRange();
@@ -98,184 +80,46 @@ export const Task: React.FC<CardProps> = ({ card }) => {
       selection?.removeAllRanges();
       selection?.addRange(range);
     }
-  }, [isEditingDescription]);
-
-  // Focus the confirmation dialog when it opens
-  useEffect(() => {
-    if (showDeleteConfirmation && confirmationDialogRef.current) {
-      confirmationDialogRef.current.focus();
-    }
-  }, [showDeleteConfirmation]);
-
-  // Handle clicking outside the status dropdown
-  useEffect(() => {
-    if (showStatusDropdown) {
-      const handleDocumentClick = () => {
-        setShowStatusDropdown(false);
-      };
-
-      document.addEventListener('click', handleDocumentClick);
-      return () => {
-        document.removeEventListener('click', handleDocumentClick);
-      };
-    }
-  }, [showStatusDropdown]);
-
-  const handleDeleteClick = (e: React.MouseEvent): void => {
-    e.stopPropagation();
-    if (card.id === -1) {
-      // if it's a temporary card, let remove without confirmation
-      deleteTask(card.id);
-      return;
-    }
-    setShowDeleteConfirmation(true);
-  };
-
-  const handleConfirmDelete = (): void => {
-    deleteTask(card.id);
-    setShowDeleteConfirmation(false);
-  };
-
-  const handleCancelDelete = (): void => {
-    setShowDeleteConfirmation(false);
-  };
-
-  const handleConfirmationKeyPress = (e: React.KeyboardEvent): void => {
-    if (e.key === 'Escape') {
-      handleCancelDelete();
-    } else if (e.key === 'Enter') {
-      handleConfirmDelete();
-    }
-  };
-
-  const handleOverlayClick = (e: React.MouseEvent): void => {
-    if (e.target === e.currentTarget) {
-      handleCancelDelete();
-    }
-  };
-
-  const handleStatusDropdownClick = (e: React.MouseEvent): void => {
-    e.stopPropagation();
-    setShowStatusDropdown(!showStatusDropdown);
-  };
-
-  const handleStatusChange = (newBucket: string): void => {
-    if (newBucket !== card.bucket) {
-      updateTask(card.id, { bucket: newBucket });
-    }
-    setShowStatusDropdown(false);
-  };
+  }, [task.editing]);
 
   const descriptionKlass = useMemo(
     () =>
       clsx('card-description', {
-        'empty-description': !card.description,
-        editing: isEditingDescription,
+        'empty-description': !task.description,
+        editing: task.editing,
       }),
-    [isEditingDescription, card.description]
+    [task.editing, task.description]
   );
 
   return (
     <>
       <div className='task'>
         <div className='task-header'>
-          <div className='task-id'>{card.id}</div>
-          <div className='card-actions' style={{ display: 'none' }}>
-            <div className='status-dropdown-container'>
-              <div
-                className='status-btn'
-                onClick={handleStatusDropdownClick}
-                title='Move to different status'
-              >
-                status
-              </div>
-              {showStatusDropdown && (
-                <div className='status-dropdown'>
-                  {buckets.map(bucket => (
-                    <div
-                      key={bucket}
-                      className={`status-option ${card.bucket === bucket ? 'current' : ''}`}
-                      onClick={() => handleStatusChange(bucket)}
-                    >
-                      {bucket}
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-            <div className='delete-btn' onClick={handleDeleteClick}>
-              del
-            </div>
+          <div className='task-id'>
+            {task.id.slice(0, 8)} - {task.order}
           </div>
-          {/* <div className='task-priority'>{card.priority}</div>
-         <div className='task-status'>{card.status}</div>
-         <div className='task-created-at'>{formatDate(card.created_at)}</div>
-         <div className='task-updated-at'>{formatDate(card.updated_at)}</div> */}
         </div>
         <div className='task-content'>
           <div
-            data-task-id={card.id}
+            data-task-id={task.id}
             ref={descriptionRef}
             className={descriptionKlass}
-            contentEditable={isEditingDescription}
+            contentEditable={task.editing}
             suppressContentEditableWarning={true}
             onKeyDown={handleDescriptionKeyPress}
+            onFocus={() => editingTask(task.id)}
+            onClick={() => editingTask(task.id)}
             onBlur={handleSaveDescription}
-            onClick={() =>
-              !isEditingDescription && setIsEditingDescription(true)
-            }
-            title={
-              isEditingDescription
-                ? 'Ctrl+Enter to save, Esc to cancel'
-                : 'Click to edit'
-            }
             style={{ whiteSpace: 'pre-wrap' }}
             data-placeholder={NEW_CARD_DESCRIPTION}
             dangerouslySetInnerHTML={{
-              __html: card.description
-                ? card.description.replace(/\n/g, '<br>')
+              __html: task.description
+                ? task.description.replace(/\n/g, '<br>')
                 : '',
             }}
           />
         </div>
       </div>
-
-      {/* Delete Confirmation Dialog */}
-      {showDeleteConfirmation && (
-        <div
-          className='delete-confirmation-overlay'
-          onClick={handleOverlayClick}
-        >
-          <div
-            className='delete-confirmation-dialog'
-            onKeyDown={handleConfirmationKeyPress}
-            tabIndex={-1}
-            ref={confirmationDialogRef}
-          >
-            <div className='confirmation-header'>
-              <h3>Confirm Delete</h3>
-            </div>
-            <div className='confirmation-content'>
-              <p>
-                Are you sure you want to delete task{' '}
-                <strong>"{card.id}"</strong>?
-              </p>
-              <p>This action cannot be undone.</p>
-            </div>
-            <div className='confirmation-actions'>
-              <button className='cancel-btn' onClick={handleCancelDelete}>
-                Cancel
-              </button>
-              <button
-                className='confirm-delete-btn'
-                onClick={handleConfirmDelete}
-              >
-                Delete
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </>
   );
 };
