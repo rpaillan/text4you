@@ -2,7 +2,6 @@ import React, { useState, useRef, useEffect, useMemo } from 'react';
 
 import { SingleTask } from '../types/index.js';
 import './Task.scss';
-import { NEW_CARD_DESCRIPTION } from './Board.js';
 import clsx from 'clsx';
 import { useKanbanActions, useKanbanStore } from '../store/kanbanStore.js';
 
@@ -61,6 +60,74 @@ export const Task: React.FC<CardProps> = ({ task }) => {
     } else if (e.key === 'Escape') {
       e.preventDefault();
       handleCancelDescription();
+    } else if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+      const element = descriptionRef.current;
+      if (!element) return;
+
+      const selection = window.getSelection();
+      if (!selection || selection.rangeCount === 0) return;
+
+      const range = selection.getRangeAt(0);
+      const cursorPosition = range.startOffset;
+      const textContent = element.textContent || '';
+
+      // Check if we're at the end (ArrowDown) or beginning (ArrowUp)
+      const isAtEnd = cursorPosition === textContent.length;
+      const isAtBeginning = cursorPosition === 0;
+
+      if (
+        (e.key === 'ArrowDown' && isAtEnd) ||
+        (e.key === 'ArrowUp' && isAtBeginning)
+      ) {
+        e.preventDefault();
+
+        // Find all task elements in the same bucket
+        const currentTaskElement = element.closest('[data-task-id]');
+        const bucketElement = currentTaskElement?.closest('.bucket-tasks');
+        const allTasks = bucketElement?.querySelectorAll('.card-description');
+        if (!allTasks || !currentTaskElement) return;
+
+        const currentIndex = Array.from(allTasks).indexOf(element);
+        let nextIndex = -1;
+
+        if (e.key === 'ArrowDown' && currentIndex < allTasks.length - 1) {
+          nextIndex = currentIndex + 1;
+        } else if (e.key === 'ArrowUp' && currentIndex > 0) {
+          nextIndex = currentIndex - 1;
+        }
+
+        if (nextIndex >= 0) {
+          const nextTask = allTasks[nextIndex] as HTMLElement;
+          const nextTaskId = nextTask.getAttribute('data-task-id');
+
+          if (nextTaskId) {
+            // Set editing state for the next task
+            //editingTask(nextTaskId);
+
+            // Focus and position cursor
+            nextTask.focus();
+
+            // Position cursor at beginning (ArrowUp) or end (ArrowDown)
+            setTimeout(() => {
+              const newRange = document.createRange();
+              const newSelection = window.getSelection();
+
+              if (e.key === 'ArrowDown') {
+                // Place cursor at beginning of next task
+                newRange.setStart(nextTask, 0);
+                newRange.collapse(true);
+              } else {
+                // Place cursor at end of previous task
+                newRange.selectNodeContents(nextTask);
+                newRange.collapse(false);
+              }
+
+              newSelection?.removeAllRanges();
+              newSelection?.addRange(newRange);
+            }, 0);
+          }
+        }
+      }
     }
   };
 
@@ -101,6 +168,7 @@ export const Task: React.FC<CardProps> = ({ task }) => {
         </div>
         <div className='task-content'>
           <div
+            tabIndex={0}
             data-task-id={task.id}
             ref={descriptionRef}
             className={descriptionKlass}
@@ -110,8 +178,6 @@ export const Task: React.FC<CardProps> = ({ task }) => {
             onFocus={() => editingTask(task.id)}
             onClick={() => editingTask(task.id)}
             onBlur={handleSaveDescription}
-            style={{ whiteSpace: 'pre-wrap' }}
-            data-placeholder={NEW_CARD_DESCRIPTION}
             dangerouslySetInnerHTML={{
               __html: task.description
                 ? task.description.replace(/\n/g, '<br>')
