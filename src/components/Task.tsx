@@ -68,17 +68,28 @@ export const Task: React.FC<CardProps> = ({ task }) => {
       if (!selection || selection.rangeCount === 0) return;
 
       const range = selection.getRangeAt(0);
-      const cursorPosition = range.startOffset;
-      const textContent = element.textContent || '';
 
-      // Check if we're at the end (ArrowDown) or beginning (ArrowUp)
-      const isAtEnd = cursorPosition === textContent.length;
-      const isAtBeginning = cursorPosition === 0;
+      // For multi-line text, check if we're at the actual line boundaries
+      const isAtLastLine = () => {
+        const rect = range.getBoundingClientRect();
+        const elementRect = element.getBoundingClientRect();
+        return rect.bottom >= elementRect.bottom - 5; // Within 5px of bottom
+      };
 
-      if (
-        (e.key === 'ArrowDown' && isAtEnd) ||
-        (e.key === 'ArrowUp' && isAtBeginning)
-      ) {
+      const isAtFirstLine = () => {
+        const rect = range.getBoundingClientRect();
+        const elementRect = element.getBoundingClientRect();
+        console.log('isAtFirstLine', rect.top, elementRect.top);
+        return rect.top <= elementRect.top + 5; // Within 5px of top
+      };
+
+      // Check if we're at the boundaries where navigation should occur
+      const shouldNavigateDown = e.key === 'ArrowDown' && isAtLastLine();
+      const shouldNavigateUp = e.key === 'ArrowUp' && isAtFirstLine();
+
+      console.log('shouldNavigateDown', shouldNavigateDown, shouldNavigateUp);
+
+      if (shouldNavigateDown || shouldNavigateUp) {
         e.preventDefault();
 
         // Find all task elements in the same bucket
@@ -101,10 +112,7 @@ export const Task: React.FC<CardProps> = ({ task }) => {
           const nextTaskId = nextTask.getAttribute('data-task-id');
 
           if (nextTaskId) {
-            // Set editing state for the next task
-            //editingTask(nextTaskId);
-
-            // Focus and position cursor
+            // Focus and position cursor, focus will set editing stateß
             nextTask.focus();
 
             // Position cursor at beginning (ArrowUp) or end (ArrowDown)
