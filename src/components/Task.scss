@@ -13,20 +13,20 @@
 
   .task-content {
     flex-grow: 1;
-    .card-description {
+    .task-description-input {
       &:focus {
         outline: none;
       }
     }
 
-    .card-title {
+    .task-title {
       &:focus {
         outline: none;
       }
     }
   }
 
-  .card-description {
+  .task-description-input {
     width: 100%;
     min-height: 1em;
     white-space: pre-wrap;

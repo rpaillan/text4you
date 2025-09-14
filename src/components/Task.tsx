@@ -79,7 +79,6 @@ export const Task: React.FC<CardProps> = ({ task }) => {
       const isAtFirstLine = () => {
         const rect = range.getBoundingClientRect();
         const elementRect = element.getBoundingClientRect();
-        console.log('isAtFirstLine', rect.top, elementRect.top);
         return rect.top <= elementRect.top + 5; // Within 5px of top
       };
 
@@ -87,16 +86,15 @@ export const Task: React.FC<CardProps> = ({ task }) => {
       const shouldNavigateDown = e.key === 'ArrowDown' && isAtLastLine();
       const shouldNavigateUp = e.key === 'ArrowUp' && isAtFirstLine();
 
-      console.log('shouldNavigateDown', shouldNavigateDown, shouldNavigateUp);
-
       if (shouldNavigateDown || shouldNavigateUp) {
         e.preventDefault();
 
-        // Find all task elements in the same bucket
-        const currentTaskElement = element.closest('[data-task-id]');
-        const bucketElement = currentTaskElement?.closest('.bucket-tasks');
-        const allTasks = bucketElement?.querySelectorAll('.card-description');
-        if (!allTasks || !currentTaskElement) return;
+        // Find all task elements in the page
+        const bucketElement = element.closest('.bucket-list');
+        const allTasks = bucketElement?.querySelectorAll(
+          '.task-description-input'
+        );
+        if (!allTasks) return;
 
         const currentIndex = Array.from(allTasks).indexOf(element);
         let nextIndex = -1;
@@ -159,7 +157,7 @@ export const Task: React.FC<CardProps> = ({ task }) => {
 
   const descriptionKlass = useMemo(
     () =>
-      clsx('card-description', {
+      clsx('task-description-input', {
         'empty-description': !task.description,
         editing: task.editing,
       }),
