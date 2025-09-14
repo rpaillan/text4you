@@ -65,10 +65,14 @@ const KanbanBoard: React.FC<KanbanBoardProps> = ({ cards }) => {
         <div className='bucket-list'>
           {buckets.map(bucket => (
             <div key={bucket} className='bucket-wrapper'>
-              <h2>
-                {bucket}{' '}
-                <button onClick={() => addTempTask(bucket)}>+ Add</button>
-              </h2>
+              <div className='bucket'>
+                /{bucket}
+                <div className='bucket-options'>
+                  <div className='button' onClick={() => addTempTask(bucket)}>
+                    +
+                  </div>
+                </div>
+              </div>
               <div className='bucket-tasks'>
                 {cards
                   .filter(card => card.bucket === bucket)

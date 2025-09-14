@@ -46,6 +46,8 @@ const sampleTasks: SingleTask[] = [
     order: 1000,
     created_at: new Date(Date.now() - 86400000 * 2).toISOString(), // 2 days ago
     updated_at: new Date(Date.now() - 86400000).toISOString(), // 1 day ago
+    editing: false,
+    state: 'prog',
   },
   {
     id: generateUUID(),
@@ -56,6 +58,8 @@ const sampleTasks: SingleTask[] = [
     order: 1000,
     created_at: new Date(Date.now() - 86400000 * 3).toISOString(), // 3 days ago
     updated_at: new Date(Date.now() - 86400000).toISOString(), // 1 day ago
+    editing: false,
+    state: 'blck',
   },
   {
     id: generateUUID(),
@@ -66,6 +70,8 @@ const sampleTasks: SingleTask[] = [
     order: 1000,
     created_at: new Date(Date.now() - 86400000).toISOString(), // 1 day ago
     updated_at: new Date(Date.now() - 86400000).toISOString(), // 1 day ago
+    editing: false,
+    state: 'prog',
   },
   {
     id: generateUUID(),
@@ -76,6 +82,8 @@ const sampleTasks: SingleTask[] = [
     order: 2000,
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
+    editing: false,
+    state: 'prog',
   },
   {
     id: generateUUID(),
@@ -86,6 +94,8 @@ const sampleTasks: SingleTask[] = [
     order: 2000,
     created_at: new Date(Date.now() - 86400000).toISOString(), // 1 day ago
     updated_at: new Date().toISOString(),
+    editing: false,
+    state: 'done',
   },
 ];
 
@@ -133,6 +143,8 @@ export const useKanbanStore = create<KanbanStore>()(
             order: maxOrder + 1000,
             created_at: new Date().toISOString(),
             updated_at: new Date().toISOString(),
+            editing: true,
+            state: 'todo',
           };
 
           set(
@@ -177,6 +189,7 @@ export const useKanbanStore = create<KanbanStore>()(
             created_at: new Date().toISOString(),
             updated_at: new Date().toISOString(),
             editing: true,
+            state: 'todo',
           };
 
           set(

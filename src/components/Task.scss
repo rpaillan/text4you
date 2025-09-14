@@ -1,14 +1,57 @@
 .task {
   display: flex;
   align-items: flex-start;
-  gap: 20px;
-  padding: 0 10px;
+  padding: 0;
+
+  &.editing {
+    background-color: var(--color-bg-elevated);
+  }
+
+  &.state-prog {
+    .task-header {
+      .task-state-icon {
+        color: var(--color-success) !important;
+      }
+    }
+  }
+  &.state-done {
+    opacity: 0.35;
+  }
+  &.state-blck {
+    .task-header {
+      .task-state-icon {
+        color: var(--color-danger) !important;
+      }
+    }
+  }
 
   .task-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
     padding: 0 10px;
-    width: 130px;
-    font-family: Verdana, Geneva, Tahoma, sans-serif;
     font-size: 10px;
+
+    color: var(--color-text-secondary);
+
+    .task-id {
+      width: 50px;
+    }
+    .task-options {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 10px;
+
+      .task-state {
+        padding: 0 2px;
+        font-weight: 600;
+      }
+      .task-state-icon {
+        font-size: 25px;
+        color: var(--color-bg);
+      }
+    }
   }
 
   .task-content {

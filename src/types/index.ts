@@ -7,5 +7,6 @@ export interface SingleTask {
   created_at: string;
   updated_at: string;
   order: number;
-  editing?: boolean;
+  editing: boolean;
+  state: 'todo' | 'prog' | 'done' | 'blck'; // todo = todo, prog = in progress, done = done, blck = blocked
 }

@@ -166,10 +166,15 @@ export const Task: React.FC<CardProps> = ({ task }) => {
 
   return (
     <>
-      <div className='task'>
+      <div
+        className={clsx('task', `state-${task.state}`, {
+          editing: task.editing,
+        })}
+      >
         <div className='task-header'>
-          <div className='task-id'>
-            {task.id.slice(0, 8)} - {task.order}
+          <div className='task-id'>{task.id.slice(0, 8)}</div>
+          <div className='task-options'>
+            <span className='task-state-icon'>•</span>
           </div>
         </div>
         <div className='task-content'>
