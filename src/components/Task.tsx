@@ -53,6 +53,26 @@ export const Task: React.FC<CardProps> = ({ task }) => {
     });
   };
 
+  /*  const showDebugDivBasedOnRect = (rect: DOMRect, color: string) => {
+    const debugDiv = document.createElement('div');
+    debugDiv.style.position = 'fixed';
+    debugDiv.style.left = `${rect.left}px`;
+    debugDiv.style.top = `${rect.top}px`;
+    debugDiv.style.width = `${rect.width}px`;
+    debugDiv.style.height = `${rect.height}px`;
+    debugDiv.style.borderTop = `2px solid ${color}`;
+    debugDiv.style.borderBottom = `2px solid ${color}`;
+    debugDiv.style.zIndex = '9999';
+    debugDiv.style.pointerEvents = 'none';
+    debugDiv.className = 'debug-rect-overlay';
+    document.body.appendChild(debugDiv);
+    setTimeout(() => {
+      if (debugDiv.parentNode) {
+        debugDiv.parentNode.removeChild(debugDiv);
+      }
+    }, 1000);
+  }; */
+
   const handleDescriptionKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 's' && e.ctrlKey) {
       e.preventDefault();
@@ -67,19 +87,55 @@ export const Task: React.FC<CardProps> = ({ task }) => {
       const selection = window.getSelection();
       if (!selection || selection.rangeCount === 0) return;
 
-      const range = selection.getRangeAt(0);
+      const commonLineHeight = 15;
 
-      // For multi-line text, check if we're at the actual line boundaries
+      const getCursoPosition = (testRange: Range) => {
+        const startContainer = testRange.startContainer;
+
+        let rect = testRange.getBoundingClientRect();
+
+        if (startContainer instanceof Text) {
+          const range = document.createRange();
+          range.setStart(startContainer, testRange.startOffset);
+          range.setEnd(startContainer, testRange.endOffset);
+
+          // Get position directly
+          rect = range.getBoundingClientRect();
+        } else {
+          rect = (startContainer as Element).getBoundingClientRect();
+        }
+
+        if (rect.width === 0) {
+          rect.width = 20;
+        }
+
+        return rect;
+      };
+
       const isAtLastLine = () => {
-        const rect = range.getBoundingClientRect();
+        // Get the actual cursor position using a different approach
+        const selection = window.getSelection();
+        if (!selection || !selection.focusNode) return false;
+        const testRange = selection.getRangeAt(0);
+        if (testRange.startContainer === element) return false;
+        const rect = getCursoPosition(testRange);
         const elementRect = element.getBoundingClientRect();
-        return rect.bottom >= elementRect.bottom - 5; // Within 5px of bottom
+        //showDebugDivBasedOnRect(elementRect, 'green');
+        //showDebugDivBasedOnRect(rect, 'red');
+        return rect.top + commonLineHeight >= elementRect.bottom - 5;
       };
 
       const isAtFirstLine = () => {
-        const rect = range.getBoundingClientRect();
+        // Get the actual cursor position using a different approach
+        const selection = window.getSelection();
+        if (!selection || !selection.focusNode) return false;
+        const testRange = selection.getRangeAt(0);
+        if (testRange.startContainer === element) return false;
+        const rect = getCursoPosition(testRange);
         const elementRect = element.getBoundingClientRect();
-        return rect.top <= elementRect.top + 5; // Within 5px of top
+        //showDebugDivBasedOnRect(elementRect, 'green');
+        //showDebugDivBasedOnRect(rect, 'red');
+        return rect.top <= elementRect.top + commonLineHeight; // Within 5px of top
       };
 
       // Check if we're at the boundaries where navigation should occur
@@ -145,13 +201,6 @@ export const Task: React.FC<CardProps> = ({ task }) => {
   useEffect(() => {
     if (task.editing && descriptionRef.current) {
       descriptionRef.current.focus();
-      // Place cursor at end
-      const range = document.createRange();
-      const selection = window.getSelection();
-      range.selectNodeContents(descriptionRef.current);
-      range.collapse(false);
-      selection?.removeAllRanges();
-      selection?.addRange(range);
     }
   }, [task.editing]);
 

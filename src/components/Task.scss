@@ -76,5 +76,9 @@
     &:focus {
       outline: none;
     }
+    div {
+      min-height: 1em;
+      min-width: 1em;
+    }
   }
 }
