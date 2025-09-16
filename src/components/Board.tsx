@@ -4,13 +4,14 @@ import './Board.scss';
 import { TaskView } from './Task.js';
 import { useKanbanStore } from '../store/kanbanStore.js';
 import { useRouter } from '../hooks/useRouter.js';
+import { obfuscateTasks } from '../utils/obfuscation.js';
 
 export const NEW_CARD_DESCRIPTION = 'Click to add description...';
 
 const KanbanBoard: React.FC = () => {
   const buckets: Bucket[] = useKanbanStore(state => state.buckets);
+  const tasks = useKanbanStore(state => state.tasks);
   const addTempTask = useKanbanStore(state => state.addTempTask);
-  const getBucketTasks = useKanbanStore(state => state.getBucketTasks);
 
   const initializeWithSampleData = useKanbanStore(
     state => state.initializeWithSampleData
@@ -37,8 +38,13 @@ const KanbanBoard: React.FC = () => {
       <div className='vertical-card-list'>
         <div className='bucket-list'>
           {buckets.map(bucketConfig => {
-            const bucketTasks = getBucketTasks(bucketConfig.name);
             const hasProtection = !!bucketConfig.token;
+            let bucketTasks = tasks.filter(
+              task => task.bucket === bucketConfig.name
+            );
+            if (hasProtection) {
+              bucketTasks = obfuscateTasks(bucketTasks);
+            }
 
             return (
               <div key={bucketConfig.name} className='bucket-wrapper'>

@@ -31,7 +31,6 @@ interface KanbanActions {
   clearError: () => void;
 
   // Bucket authentication
-  getBucketTasks: (bucketName: string, providedToken?: string) => Task[];
   getBucketConfig: (bucketName: string) => Bucket | undefined;
 
   // Initialize with sample data
@@ -312,30 +311,6 @@ export const useKanbanStore = create<KanbanStore>()(
 
         clearError: () => {
           set({ error: null }, false, 'clearError');
-        },
-
-        getBucketTasks: (bucketName: string, providedToken?: string) => {
-          const bucketConfig = get().buckets.find(b => b.name === bucketName);
-          const realTasks = get().tasks.filter(
-            task => task.bucket === bucketName
-          );
-
-          // If bucket has no token protection, return real tasks
-          if (!bucketConfig?.token) {
-            return realTasks;
-          }
-
-          // If correct token provided, return real tasks
-          if (providedToken === bucketConfig.token) {
-            return realTasks;
-          }
-
-          // Otherwise return obfuscated tasks or placeholders
-          if (realTasks.length > 0) {
-            return obfuscateTasks(realTasks);
-          } else {
-            return generatePlaceholderTasks(bucketName, 2);
-          }
         },
 
         getBucketConfig: (bucketName: string) => {
