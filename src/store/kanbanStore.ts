@@ -293,36 +293,3 @@ export const useKanbanStore = create<KanbanStore>()(
     }
   )
 );
-
-// Selector hooks for better performance
-export const useCards = () => useKanbanStore(state => state.tasks);
-export const useBuckets = () => useKanbanStore(state => state.buckets);
-export const useLoading = () => useKanbanStore(state => state.loading);
-export const useError = () => useKanbanStore(state => state.error);
-
-// Action hooks
-export const useKanbanActions = () => {
-  const addTempTask = useKanbanStore(state => state.addTempTask);
-  const addTaskAfter = useKanbanStore(state => state.addTaskAfter);
-  const updateTask = useKanbanStore(state => state.updateTask);
-  const deleteTask = useKanbanStore(state => state.deleteTask);
-  const setLoading = useKanbanStore(state => state.setLoading);
-  const setError = useKanbanStore(state => state.setError);
-  const clearError = useKanbanStore(state => state.clearError);
-  const initializeWithSampleData = useKanbanStore(
-    state => state.initializeWithSampleData
-  );
-
-  return {
-    addTempTask,
-    addTaskAfter,
-    updateTask,
-    deleteTask,
-    setLoading,
-    setError,
-    clearError,
-    initializeWithSampleData,
-  };
-};
-
-// helpers

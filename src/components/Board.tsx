@@ -1,66 +1,38 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { SingleTask } from '../types/index.js';
 import './Board.scss';
-import { useBuckets, useKanbanActions } from '../store/kanbanStore.js';
 import { Task } from './Task.js';
+import { useKanbanStore } from '../store/kanbanStore.js';
 
 export const NEW_CARD_DESCRIPTION = 'Click to add description...';
 
-interface KanbanBoardProps {
-  cards: SingleTask[];
-}
+const KanbanBoard: React.FC = () => {
+  const cards: SingleTask[] = useKanbanStore(state => state.tasks);
+  const buckets: string[] = useKanbanStore(state => state.buckets);
+  const addTempTask = useKanbanStore(state => state.addTempTask);
+  const initializeWithSampleData = useKanbanStore(
+    state => state.initializeWithSampleData
+  );
+  const loading = useKanbanStore(state => state.loading);
+  const error = useKanbanStore(state => state.error);
 
-const KanbanBoard: React.FC<KanbanBoardProps> = ({ cards }) => {
-  const buckets: string[] = useBuckets();
-  const { addTempTask, addTaskAfter } = useKanbanActions();
-
-  const getTaskIdFronmDOM = (
-    currentTarget: HTMLDivElement
-  ): SingleTask | null => {
-    // find the current div that has enabled contentEditable attribute.
-    const currentTaskId = (
-      currentTarget.querySelector('div[contentEditable="true"]') as HTMLElement
-    )?.dataset.taskId;
-
-    if (currentTaskId) {
-      const currentTask = cards.find(card => card.id === currentTaskId);
-      return currentTask || null;
+  useEffect(() => {
+    // Initialize with sample data if no cards exist
+    if (cards.length === 0) {
+      initializeWithSampleData();
     }
-    return null;
-  };
+  }, [cards.length, initializeWithSampleData]);
 
-  const onKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
-    if (event.metaKey) {
-      if (event.key === 'Enter') {
-        const currentTask = getTaskIdFronmDOM(
-          event.currentTarget as HTMLDivElement
-        );
-        if (currentTask) {
-          onKeyboardCommand('add-new-next-task', currentTask);
-        }
-      }
-      if (event.key === 'Down') {
-        // TODO create next task as a subtask of current task.
-      }
-    }
-  };
+  if (loading) {
+    return <div className='loading'>Loading...</div>;
+  }
 
-  const onKeyboardCommand = (
-    command: string,
-    currentTask: SingleTask | null
-  ) => {
-    console.log('onKeyboardCommand', command, currentTask);
-    // if used control + enter, create a new task under current task.
-    // if used control + down, create a new subtask under current task.
+  if (error) {
+    return <div className='error'>Error: {error}</div>;
+  }
 
-    if (command === 'add-new-next-task') {
-      if (currentTask) {
-        addTaskAfter(currentTask.id, currentTask.bucket);
-      }
-    }
-  };
   return (
-    <div className='kanban-board' onKeyDown={onKeyDown}>
+    <div className='kanban-board'>
       <div className='vertical-card-list'>
         <div className='bucket-list'>
           {buckets.map(bucket => (

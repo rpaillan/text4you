@@ -1,9 +1,9 @@
-import React, { useState, useRef, useEffect, useMemo } from 'react';
+import React, { useRef, useEffect, useMemo } from 'react';
 
 import { SingleTask } from '../types/index.js';
 import './Task.scss';
 import clsx from 'clsx';
-import { useKanbanActions, useKanbanStore } from '../store/kanbanStore.js';
+import { useKanbanStore } from '../store/kanbanStore.js';
 
 interface CardProps {
   task: SingleTask;
@@ -14,8 +14,10 @@ export const Task: React.FC<CardProps> = ({ task }) => {
   const descriptionRef = useRef<HTMLDivElement>(null);
   const originalDescription = useRef<string>(task.description || '');
 
-  const { updateTask, deleteTask } = useKanbanActions();
   const editingTask = useKanbanStore(state => state.editingTask);
+  const updateTask = useKanbanStore(state => state.updateTask);
+  const deleteTask = useKanbanStore(state => state.deleteTask);
+  const addTaskAfter = useKanbanStore(state => state.addTaskAfter);
 
   const handleSaveDescription = () => {
     if (!descriptionRef.current) return;
@@ -53,28 +55,8 @@ export const Task: React.FC<CardProps> = ({ task }) => {
     });
   };
 
-  /*  const showDebugDivBasedOnRect = (rect: DOMRect, color: string) => {
-    const debugDiv = document.createElement('div');
-    debugDiv.style.position = 'fixed';
-    debugDiv.style.left = `${rect.left}px`;
-    debugDiv.style.top = `${rect.top}px`;
-    debugDiv.style.width = `${rect.width}px`;
-    debugDiv.style.height = `${rect.height}px`;
-    debugDiv.style.borderTop = `2px solid ${color}`;
-    debugDiv.style.borderBottom = `2px solid ${color}`;
-    debugDiv.style.zIndex = '9999';
-    debugDiv.style.pointerEvents = 'none';
-    debugDiv.className = 'debug-rect-overlay';
-    document.body.appendChild(debugDiv);
-    setTimeout(() => {
-      if (debugDiv.parentNode) {
-        debugDiv.parentNode.removeChild(debugDiv);
-      }
-    }, 1000);
-  }; */
-
   const handleDescriptionKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 's' && e.ctrlKey) {
+    if (e.key === 's' && e.metaKey) {
       e.preventDefault();
       handleSaveDescription();
     } else if (e.key === 'Escape') {
@@ -190,6 +172,33 @@ export const Task: React.FC<CardProps> = ({ task }) => {
           }
         }
       }
+    } else if (e.key === '1' && e.metaKey) {
+      // let set state to todo
+      updateTask(task.id, {
+        state: 'todo',
+      });
+    } else if (e.key === '2' && e.metaKey) {
+      // let set state to prog
+      updateTask(task.id, {
+        state: 'prog',
+      });
+    } else if (e.key === '3' && e.metaKey) {
+      // let set state to done
+      updateTask(task.id, {
+        state: 'done',
+      });
+    } else if (e.key === '4' && e.metaKey) {
+      // let set state to blck
+      updateTask(task.id, {
+        state: 'blck',
+      });
+    } else if (e.key === 'd' && e.metaKey) {
+      // let delete the task
+      deleteTask(task.id);
+    }
+    if (e.key === 'Enter' && e.metaKey) {
+      // let create a new task under current task
+      addTaskAfter(task.id, task.bucket);
     }
   };
 
