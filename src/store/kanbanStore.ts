@@ -1,10 +1,11 @@
 import { create } from 'zustand';
 import { devtools, persist } from 'zustand/middleware';
-import { SingleTask } from '../types';
+import { Task, Bucket } from '../types';
+import { obfuscateTasks, generatePlaceholderTasks } from '../utils/obfuscation';
 
 interface KanbanState {
-  tasks: SingleTask[];
-  buckets: string[];
+  tasks: Task[];
+  buckets: Bucket[];
   loading: boolean;
   error: string | null;
 }
@@ -20,7 +21,7 @@ interface KanbanActions {
   addTaskAfter: (afterTaskId: string, bucket: string) => void;
   updateTask: (
     id: string,
-    cardData: Partial<Omit<SingleTask, 'id' | 'created_at' | 'updated_at'>>
+    cardData: Partial<Omit<Task, 'id' | 'created_at' | 'updated_at'>>
   ) => void;
   deleteTask: (id: string) => void;
 
@@ -29,6 +30,10 @@ interface KanbanActions {
   setError: (error: string | null) => void;
   clearError: () => void;
 
+  // Bucket authentication
+  getBucketTasks: (bucketName: string, providedToken?: string) => Task[];
+  getBucketConfig: (bucketName: string) => Bucket | undefined;
+
   // Initialize with sample data
   initializeWithSampleData: () => void;
 }
@@ -36,7 +41,7 @@ interface KanbanActions {
 type KanbanStore = KanbanState & KanbanActions;
 
 // Sample data for initial state
-const sampleTasks: SingleTask[] = [
+const sampleTasks: Task[] = [
   {
     id: generateUUID(),
     description: 'Create wireframes and mockups for the new dashboard',
@@ -97,6 +102,52 @@ const sampleTasks: SingleTask[] = [
     editing: false,
     state: 'done',
   },
+  // Additional tasks for protected buckets
+  {
+    id: generateUUID(),
+    description: 'Confidential project planning task',
+    bucket: 'confidential',
+    parent_id: null,
+    tags: [],
+    order: 1000,
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+    editing: false,
+    state: 'todo',
+  },
+  {
+    id: generateUUID(),
+    description: 'Secret feature implementation',
+    bucket: 'confidential',
+    parent_id: null,
+    tags: [],
+    order: 2000,
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+    editing: false,
+    state: 'prog',
+  },
+  {
+    id: generateUUID(),
+    description: 'Private client meeting notes',
+    bucket: 'private',
+    parent_id: null,
+    tags: [],
+    order: 1000,
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+    editing: false,
+    state: 'done',
+  },
+];
+
+// Sample bucket configurations
+const sampleBuckets: Bucket[] = [
+  { name: 'idea' },
+  { name: 'in_progress' },
+  { name: 'done' },
+  { name: 'confidential', token: '1234' },
+  { name: 'private', token: '5678' },
 ];
 
 export const useKanbanStore = create<KanbanStore>()(
@@ -104,13 +155,15 @@ export const useKanbanStore = create<KanbanStore>()(
     persist(
       (set, get) => ({
         // Initial state
-        buckets: ['idea', 'in_progress', 'done'],
+        buckets: [],
         tasks: [],
+        authenticatedBuckets: new Set<string>(),
         loading: false,
         error: null,
         nextId: 6, // Start after sample data IDs
 
         editingTask: (taskId: string) => {
+          console.log('editingTask', taskId);
           const task = get().tasks.find(task => task.id === taskId);
           if (!task) return;
           set(state => ({
@@ -123,8 +176,6 @@ export const useKanbanStore = create<KanbanStore>()(
         },
 
         addTempTask: (bucket: string) => {
-          // check that do not exist other task with id -1
-
           // Find the highest order in this bucket and add 1000
           const tasksInBucket = get().tasks.filter(
             task => task.bucket === bucket
@@ -134,7 +185,7 @@ export const useKanbanStore = create<KanbanStore>()(
               ? Math.max(...tasksInBucket.map(task => task.order))
               : 0;
 
-          const newTempCard: SingleTask = {
+          const newTempCard: Task = {
             id: generateUUID(),
             parent_id: null,
             bucket: bucket,
@@ -179,7 +230,7 @@ export const useKanbanStore = create<KanbanStore>()(
             newOrder += 0.001; // Small increment
           }
 
-          const newTempCard: SingleTask = {
+          const newTempCard: Task = {
             id: generateUUID(),
             parent_id: null,
             bucket,
@@ -204,9 +255,7 @@ export const useKanbanStore = create<KanbanStore>()(
 
         updateTask: (
           id: string,
-          cardData: Partial<
-            Omit<SingleTask, 'id' | 'created_at' | 'updated_at'>
-          >
+          cardData: Partial<Omit<Task, 'id' | 'created_at' | 'updated_at'>>
         ) => {
           const now = new Date().toISOString();
 
@@ -265,13 +314,39 @@ export const useKanbanStore = create<KanbanStore>()(
           set({ error: null }, false, 'clearError');
         },
 
+        getBucketTasks: (bucketName: string, providedToken?: string) => {
+          const bucketConfig = get().buckets.find(b => b.name === bucketName);
+          const realTasks = get().tasks.filter(
+            task => task.bucket === bucketName
+          );
+
+          // If bucket has no token protection, return real tasks
+          if (!bucketConfig?.token) {
+            return realTasks;
+          }
+
+          // If correct token provided, return real tasks
+          if (providedToken === bucketConfig.token) {
+            return realTasks;
+          }
+
+          // Otherwise return obfuscated tasks or placeholders
+          if (realTasks.length > 0) {
+            return obfuscateTasks(realTasks);
+          } else {
+            return generatePlaceholderTasks(bucketName, 2);
+          }
+        },
+
+        getBucketConfig: (bucketName: string) => {
+          return get().buckets.find(b => b.name === bucketName);
+        },
+
         initializeWithSampleData: () => {
           set(
             {
               tasks: sampleTasks,
-              buckets: Array.from(
-                new Set(sampleTasks.map(card => card.bucket))
-              ),
+              buckets: sampleBuckets,
               loading: false,
               error: null,
             },

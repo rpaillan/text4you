@@ -1,4 +1,4 @@
-export interface SingleTask {
+export interface Task {
   id: string;
   description?: string;
   bucket: string;
@@ -9,4 +9,9 @@ export interface SingleTask {
   order: number;
   editing: boolean;
   state: 'todo' | 'prog' | 'done' | 'blck'; // todo = todo, prog = in progress, done = done, blck = blocked
+}
+
+export interface Bucket {
+  name: string;
+  token?: string; // Optional password/token for accessing this bucket
 }

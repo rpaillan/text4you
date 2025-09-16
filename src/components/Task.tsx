@@ -1,16 +1,20 @@
 import React, { useRef, useEffect, useMemo } from 'react';
 
-import { SingleTask } from '../types/index.js';
+import { Task } from '../types/index.js';
 import './Task.scss';
 import clsx from 'clsx';
 import { useKanbanStore } from '../store/kanbanStore.js';
 
 interface CardProps {
-  task: SingleTask;
+  task: Task;
   index: number;
+  isObfuscated?: boolean;
 }
 
-export const Task: React.FC<CardProps> = ({ task }) => {
+export const TaskView: React.FC<CardProps> = ({
+  task,
+  isObfuscated = false,
+}) => {
   const descriptionRef = useRef<HTMLDivElement>(null);
   const originalDescription = useRef<string>(task.description || '');
 
@@ -218,15 +222,17 @@ export const Task: React.FC<CardProps> = ({ task }) => {
       clsx('task-description-input', {
         'empty-description': !task.description,
         editing: task.editing,
+        obfuscated: isObfuscated,
       }),
-    [task.editing, task.description]
+    [task.editing, task.description, isObfuscated]
   );
 
   return (
     <>
       <div
         className={clsx('task', `state-${task.state}`, {
-          editing: task.editing,
+          editing: task.editing && !isObfuscated,
+          obfuscated: isObfuscated,
         })}
       >
         <div className='task-header'>
@@ -241,11 +247,11 @@ export const Task: React.FC<CardProps> = ({ task }) => {
             data-task-id={task.id}
             ref={descriptionRef}
             className={descriptionKlass}
-            contentEditable={task.editing}
+            contentEditable={task.editing && !isObfuscated}
             suppressContentEditableWarning={true}
             onKeyDown={handleDescriptionKeyPress}
-            onFocus={() => editingTask(task.id)}
-            onClick={() => editingTask(task.id)}
+            onFocus={() => !isObfuscated && editingTask(task.id)}
+            onClick={() => !isObfuscated && editingTask(task.id)}
             onBlur={handleSaveDescription}
             dangerouslySetInnerHTML={{
               __html: task.description

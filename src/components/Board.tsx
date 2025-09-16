@@ -1,27 +1,29 @@
 import React, { useEffect } from 'react';
-import { SingleTask } from '../types/index.js';
+import { Task, Bucket } from '../types/index.js';
 import './Board.scss';
-import { Task } from './Task.js';
+import { TaskView } from './Task.js';
 import { useKanbanStore } from '../store/kanbanStore.js';
+import { useRouter } from '../hooks/useRouter.js';
 
 export const NEW_CARD_DESCRIPTION = 'Click to add description...';
 
 const KanbanBoard: React.FC = () => {
-  const cards: SingleTask[] = useKanbanStore(state => state.tasks);
-  const buckets: string[] = useKanbanStore(state => state.buckets);
+  const buckets: Bucket[] = useKanbanStore(state => state.buckets);
   const addTempTask = useKanbanStore(state => state.addTempTask);
+  const getBucketTasks = useKanbanStore(state => state.getBucketTasks);
+
   const initializeWithSampleData = useKanbanStore(
     state => state.initializeWithSampleData
   );
   const loading = useKanbanStore(state => state.loading);
   const error = useKanbanStore(state => state.error);
+  const { navigate } = useRouter();
 
   useEffect(() => {
-    // Initialize with sample data if no cards exist
-    if (cards.length === 0) {
+    if (buckets.length === 0) {
       initializeWithSampleData();
     }
-  }, [cards.length, initializeWithSampleData]);
+  }, [buckets.length, initializeWithSampleData]);
 
   if (loading) {
     return <div className='loading'>Loading...</div>;
@@ -30,31 +32,54 @@ const KanbanBoard: React.FC = () => {
   if (error) {
     return <div className='error'>Error: {error}</div>;
   }
-
   return (
     <div className='kanban-board'>
       <div className='vertical-card-list'>
         <div className='bucket-list'>
-          {buckets.map(bucket => (
-            <div key={bucket} className='bucket-wrapper'>
-              <div className='bucket'>
-                /{bucket}
-                <div className='bucket-options'>
-                  <div className='button' onClick={() => addTempTask(bucket)}>
-                    +
+          {buckets.map(bucketConfig => {
+            const bucketTasks = getBucketTasks(bucketConfig.name);
+            const hasProtection = !!bucketConfig.token;
+
+            return (
+              <div key={bucketConfig.name} className='bucket-wrapper'>
+                <div
+                  className={`bucket ${hasProtection ? 'protected' : ''}`}
+                  onClick={() =>
+                    navigate('/bucket', {
+                      bucket: bucketConfig.name,
+                      token: bucketConfig.token || '',
+                    })
+                  }
+                >
+                  /{bucketConfig.name}
+                  {hasProtection && <span className='lock-icon'>🔒</span>}
+                  <div className='bucket-options'>
+                    <div
+                      className='button'
+                      onClick={() => addTempTask(bucketConfig.name)}
+                      title={
+                        hasProtection ? 'Requires authentication' : 'Add task'
+                      }
+                    >
+                      +
+                    </div>
                   </div>
                 </div>
+                <div className='bucket-tasks'>
+                  {bucketTasks
+                    .sort((a, b) => a.order - b.order)
+                    .map((task, index) => (
+                      <TaskView
+                        key={task.id}
+                        task={task as Task}
+                        index={index}
+                        isObfuscated={hasProtection}
+                      />
+                    ))}
+                </div>
               </div>
-              <div className='bucket-tasks'>
-                {cards
-                  .filter(card => card.bucket === bucket)
-                  .sort((a, b) => a.order - b.order)
-                  .map((card, index) => (
-                    <Task key={card.id} task={card} index={index} />
-                  ))}
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
     </div>
