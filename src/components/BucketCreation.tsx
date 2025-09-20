@@ -11,24 +11,59 @@ const BucketCreation: React.FC<BucketCreationProps> = ({ bucketName }) => {
   const [isPrivate, setIsPrivate] = useState(false);
   const [generatedToken, setGeneratedToken] = useState<string>('');
   const [isCreating, setIsCreating] = useState(false);
+  const [showCopySuccess, setShowCopySuccess] = useState(false);
 
   const navigate = useNavigate();
   const createBucket = useKanbanStore(state => state.createBucket);
+
+  // Generate a preview token when private is selected
+  React.useEffect(() => {
+    if (isPrivate && !generatedToken) {
+      // Generate a preview token using the same method as the store
+      setGeneratedToken(crypto.randomUUID());
+    } else if (!isPrivate) {
+      setGeneratedToken('');
+    }
+  }, [isPrivate, generatedToken]);
+
+  const handleCopyToken = async () => {
+    if (generatedToken) {
+      try {
+        await navigator.clipboard.writeText(generatedToken);
+        setShowCopySuccess(true);
+        setTimeout(() => setShowCopySuccess(false), 2000);
+      } catch (err) {
+        console.error('Failed to copy token:', err);
+        // Fallback for older browsers
+        const textArea = document.createElement('textarea');
+        textArea.value = generatedToken;
+        document.body.appendChild(textArea);
+        textArea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textArea);
+        setShowCopySuccess(true);
+        setTimeout(() => setShowCopySuccess(false), 2000);
+      }
+    }
+  };
 
   const handleCreateBucket = async () => {
     setIsCreating(true);
 
     try {
-      const result = createBucket(bucketName, isPrivate);
+      // Pass the token if private, otherwise pass undefined for public bucket (empty string)
+      const result = createBucket(
+        bucketName,
+        isPrivate ? generatedToken : undefined
+      );
 
-      if (result.token) {
-        setGeneratedToken(result.token);
-        // Navigate to the new bucket with the token
+      if (result.token && result.token !== '') {
+        // Navigate to the new bucket with the token (private bucket)
         navigate(
           `/bucket/${bucketName}?token=${encodeURIComponent(result.token)}`
         );
       } else {
-        // Navigate to the new bucket without token
+        // Navigate to the new bucket without token (public bucket)
         navigate(`/bucket/${bucketName}`);
       }
     } catch (error) {
@@ -101,7 +136,7 @@ const BucketCreation: React.FC<BucketCreationProps> = ({ bucketName }) => {
             </label>
           </div>
 
-          {isPrivate && (
+          {isPrivate && generatedToken && (
             <div
               className='token-preview'
               style={{
@@ -116,33 +151,78 @@ const BucketCreation: React.FC<BucketCreationProps> = ({ bucketName }) => {
                 style={{
                   fontSize: '14px',
                   fontWeight: '600',
-                  marginBottom: '8px',
+                  marginBottom: '12px',
                   color: 'var(--text-primary)',
                 }}
               >
-                🔑 Auto-generated Token:
+                🔑 Your Private Bucket Token:
               </div>
+
               <div
-                style={{
-                  fontFamily: 'monospace',
-                  fontSize: '12px',
-                  padding: '8px',
-                  backgroundColor: 'var(--bg-secondary)',
-                  borderRadius: '4px',
-                  color: 'var(--accent-color)',
-                  wordBreak: 'break-all',
-                }}
+                style={{ display: 'flex', alignItems: 'center', gap: '10px' }}
               >
-                A secure token will be generated for this bucket
+                <div
+                  style={{
+                    fontFamily: 'monospace',
+                    fontSize: '11px',
+                    padding: '10px',
+                    backgroundColor: 'var(--bg-secondary)',
+                    borderRadius: '6px',
+                    color: 'var(--accent-color)',
+                    wordBreak: 'break-all',
+                    flex: 1,
+                    border: '1px solid var(--border-color)',
+                  }}
+                >
+                  {generatedToken}
+                </div>
+
+                <button
+                  onClick={handleCopyToken}
+                  style={{
+                    padding: '10px 12px',
+                    backgroundColor: showCopySuccess
+                      ? '#10b981'
+                      : 'var(--accent-color)',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '6px',
+                    cursor: 'pointer',
+                    fontSize: '12px',
+                    fontWeight: '600',
+                    transition: 'all 0.2s ease',
+                    minWidth: '70px',
+                  }}
+                  onMouseOver={e => {
+                    if (!showCopySuccess) {
+                      e.currentTarget.style.backgroundColor =
+                        'var(--accent-hover)';
+                    }
+                  }}
+                  onMouseOut={e => {
+                    if (!showCopySuccess) {
+                      e.currentTarget.style.backgroundColor =
+                        'var(--accent-color)';
+                    }
+                  }}
+                >
+                  {showCopySuccess ? '✅ Copied!' : '📋 Copy'}
+                </button>
               </div>
+
               <div
                 style={{
                   fontSize: '11px',
                   color: 'var(--text-secondary)',
-                  marginTop: '8px',
+                  marginTop: '12px',
+                  padding: '8px',
+                  backgroundColor: 'rgba(255, 193, 7, 0.1)',
+                  borderRadius: '4px',
+                  border: '1px solid rgba(255, 193, 7, 0.3)',
                 }}
               >
-                💡 Save this token - you'll need it to access this bucket later
+                ⚠️ <strong>Important:</strong> Save this token! You'll need it
+                to access this private bucket later.
               </div>
             </div>
           )}

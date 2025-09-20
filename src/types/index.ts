@@ -13,5 +13,5 @@ export interface Task {
 
 export interface Bucket {
   name: string;
-  token?: string; // Optional password/token for accessing this bucket
+  token: string; // Token for accessing this bucket (empty string for public buckets)
 }

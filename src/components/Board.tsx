@@ -38,7 +38,7 @@ const KanbanBoard: React.FC = () => {
       <div className='vertical-card-list'>
         <div className='bucket-list'>
           {buckets.map(bucketConfig => {
-            const hasProtection = !!bucketConfig.token;
+            const hasProtection = bucketConfig.token !== '';
             let bucketTasks = tasks.filter(
               task => task.bucket === bucketConfig.name
             );
@@ -52,7 +52,7 @@ const KanbanBoard: React.FC = () => {
                   className={`bucket ${hasProtection ? 'protected' : ''}`}
                   onClick={() => {
                     const url = `/bucket/${bucketConfig.name}${
-                      bucketConfig.token
+                      bucketConfig.token !== ''
                         ? `?token=${encodeURIComponent(bucketConfig.token)}`
                         : ''
                     }`;

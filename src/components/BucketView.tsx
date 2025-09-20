@@ -41,11 +41,11 @@ const BucketView: React.FC<BucketViewProps> = ({ bucket, token }) => {
 
   useEffect(() => {
     // Attempt authentication when component mounts or token changes
-    if (bucketConfig?.token) {
+    if (bucketConfig?.token && bucketConfig.token !== '') {
       const success = bucketConfig.token === token;
       setIsAuthenticated(success);
     } else {
-      // No token required, always authenticated
+      // No token required (public bucket), always authenticated
       setIsAuthenticated(true);
     }
   }, [bucket, token, bucketConfig]);

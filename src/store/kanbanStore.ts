@@ -1,7 +1,6 @@
 import { create } from 'zustand';
 import { devtools, persist } from 'zustand/middleware';
 import { Task, Bucket } from '../types';
-import { obfuscateTasks, generatePlaceholderTasks } from '../utils/obfuscation';
 
 interface KanbanState {
   tasks: Task[];
@@ -34,8 +33,8 @@ interface KanbanActions {
   getBucketConfig: (bucketName: string) => Bucket | undefined;
   createBucket: (
     name: string,
-    isPrivate?: boolean
-  ) => { bucket: Bucket; token?: string };
+    token?: string
+  ) => { bucket: Bucket; token: string };
 
   // Initialize with sample data
   initializeWithSampleData: () => void;
@@ -146,9 +145,9 @@ const sampleTasks: Task[] = [
 
 // Sample bucket configurations
 const sampleBuckets: Bucket[] = [
-  { name: 'idea' },
-  { name: 'in_progress' },
-  { name: 'done' },
+  { name: 'idea', token: '' },
+  { name: 'in_progress', token: '' },
+  { name: 'done', token: '' },
   { name: 'confidential', token: '1234' },
   { name: 'private', token: '5678' },
 ];
@@ -321,8 +320,10 @@ export const useKanbanStore = create<KanbanStore>()(
           return get().buckets.find(b => b.name === bucketName);
         },
 
-        createBucket: (name: string, isPrivate?: boolean) => {
-          const token = isPrivate ? generateUUID() : undefined;
+        createBucket: (name: string, providedToken?: string) => {
+          // If token is provided, use it (private bucket)
+          // If no token provided, store empty string (public bucket)
+          const token = providedToken || '';
           const bucket: Bucket = { name, token };
 
           set(
