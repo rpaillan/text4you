@@ -3,7 +3,7 @@ import { Task, Bucket } from '../types/index.js';
 import './Board.scss';
 import { TaskView } from './Task.js';
 import { useKanbanStore } from '../store/kanbanStore.js';
-import { useRouter } from '../hooks/useRouter.js';
+import { useNavigate } from 'react-router-dom';
 import { obfuscateTasks } from '../utils/obfuscation.js';
 
 export const NEW_CARD_DESCRIPTION = 'Click to add description...';
@@ -18,7 +18,7 @@ const KanbanBoard: React.FC = () => {
   );
   const loading = useKanbanStore(state => state.loading);
   const error = useKanbanStore(state => state.error);
-  const { navigate } = useRouter();
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (buckets.length === 0) {
@@ -50,12 +50,14 @@ const KanbanBoard: React.FC = () => {
               <div key={bucketConfig.name} className='bucket-wrapper'>
                 <div
                   className={`bucket ${hasProtection ? 'protected' : ''}`}
-                  onClick={() =>
-                    navigate('/bucket', {
-                      bucket: bucketConfig.name,
-                      token: bucketConfig.token || '',
-                    })
-                  }
+                  onClick={() => {
+                    const url = `/bucket/${bucketConfig.name}${
+                      bucketConfig.token
+                        ? `?token=${encodeURIComponent(bucketConfig.token)}`
+                        : ''
+                    }`;
+                    navigate(url);
+                  }}
                 >
                   /{bucketConfig.name}
                   {hasProtection && <span className='lock-icon'>🔒</span>}

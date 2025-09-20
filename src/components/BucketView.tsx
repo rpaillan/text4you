@@ -3,7 +3,7 @@ import { Task, Bucket } from '../types/index.js';
 import './Board.scss'; // Reuse existing styles
 import { TaskView } from './Task.js';
 import { useKanbanStore } from '../store/kanbanStore.js';
-import { useRouter } from '../hooks/useRouter.js';
+import { useNavigate } from 'react-router-dom';
 import { obfuscateTasks } from '../utils/obfuscation.js';
 
 interface BucketViewProps {
@@ -23,7 +23,7 @@ const BucketView: React.FC<BucketViewProps> = ({ bucket, token }) => {
   );
   const loading = useKanbanStore(state => state.loading);
   const error = useKanbanStore(state => state.error);
-  const { goHome } = useRouter();
+  const navigate = useNavigate();
 
   const bucketConfig = getBucketConfig(bucket);
   let bucketTasks = tasks.filter(task => task.bucket === bucket);
@@ -68,7 +68,7 @@ const BucketView: React.FC<BucketViewProps> = ({ bucket, token }) => {
   return (
     <div className='kanban-board'>
       <div className='bucket-view-header'>
-        <button className='back-button' onClick={goHome}>
+        <button className='back-button' onClick={() => navigate('/')}>
           ← Back to Board
         </button>
       </div>
