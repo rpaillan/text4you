@@ -4,6 +4,7 @@ import { Routes, Route, useParams, useSearchParams } from 'react-router-dom';
 import KanbanBoard from './components/Board';
 import BucketView from './components/BucketView';
 import BucketCreation from './components/BucketCreation';
+import NotFound from './components/NotFound';
 import { useKanbanStore } from './store/kanbanStore';
 import './App.scss';
 
@@ -38,6 +39,7 @@ function App(): React.JSX.Element {
       <Routes>
         <Route path='/' element={<KanbanBoard />} />
         <Route path='/bucket/:bucket' element={<BucketViewWrapper />} />
+        <Route path='*' element={<NotFound />} />
       </Routes>
     </div>
   );
