@@ -67,6 +67,7 @@ export const TaskView: React.FC<CardProps> = ({
       e.preventDefault();
       handleCancelDescription();
     } else if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+      e.preventDefault();
       const element = descriptionRef.current;
       if (!element) return;
 
@@ -177,30 +178,36 @@ export const TaskView: React.FC<CardProps> = ({
         }
       }
     } else if (e.key === '1' && e.metaKey) {
+      e.preventDefault();
       // let set state to todo
       updateTask(task.id, {
         state: 'todo',
       });
     } else if (e.key === '2' && e.metaKey) {
+      e.preventDefault();
       // let set state to prog
       updateTask(task.id, {
         state: 'prog',
       });
     } else if (e.key === '3' && e.metaKey) {
+      e.preventDefault();
       // let set state to done
       updateTask(task.id, {
         state: 'done',
       });
     } else if (e.key === '4' && e.metaKey) {
+      e.preventDefault();
       // let set state to blck
       updateTask(task.id, {
         state: 'blck',
       });
     } else if (e.key === 'd' && e.metaKey) {
+      e.preventDefault();
       // let delete the task
       deleteTask(task.id);
     }
     if (e.key === 'Enter' && e.metaKey) {
+      e.preventDefault();
       // let create a new task under current task
       addTaskAfter(task.id, task.bucket);
     }
