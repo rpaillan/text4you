@@ -16,6 +16,25 @@ const NotFound: React.FC = () => {
       { text: `40${randomMistake}`, delay: 600 }, // Type random wrong digit!
       { text: '40', delay: 800 }, // Delete wrong digit (pause... "wait, that's wrong")
       { text: '404', delay: 700 }, // Type 4 (careful and deliberate)
+      { text: '404 t', delay: 400 }, // Type 0
+      { text: '404 typ', delay: 400 },
+      { text: '404 type', delay: 400 },
+      { text: '404 type ', delay: 200 },
+      { text: '404 type t', delay: 400 },
+      { text: '404 type th', delay: 120 },
+      { text: '404 type the', delay: 400 },
+      { text: '404 type the ', delay: 120 },
+      { text: '404 type the c', delay: 120 },
+      { text: '404 type the co', delay: 300 },
+      { text: '404 type the cor', delay: 120 },
+      { text: '404 type the corr', delay: 120 },
+      { text: '404 type the corre', delay: 200 },
+      { text: '404 type the correc', delay: 120 },
+      { text: '404 type the correct', delay: 120 },
+      { text: '404 type the correct ', delay: 200 },
+      { text: '404 type the correct u', delay: 120 },
+      { text: '404 type the correct ur', delay: 120 },
+      { text: '404 type the correct url', delay: 800 },
     ];
 
     let timeoutId: NodeJS.Timeout;
@@ -58,7 +77,7 @@ const NotFound: React.FC = () => {
         justifyContent: 'center',
         alignItems: 'center',
         height: '100vh',
-        fontSize: '72px',
+        fontSize: '25px',
         fontWeight: 'bold',
         color: 'var(--text-primary)',
         fontFamily: 'monospace',
