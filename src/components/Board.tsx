@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import { Task, Bucket } from '../types/index.js';
 import './Board.scss';
 import { TaskView } from './Task.js';
+import ProgressBar from './ProgressBar.js';
 import { useKanbanStore } from '../store/kanbanStore.js';
 import { useNavigate } from 'react-router-dom';
 import { obfuscateTasks } from '../utils/obfuscation.js';
@@ -71,6 +72,7 @@ const KanbanBoard: React.FC = () => {
                     >
                       +
                     </div>
+                    <ProgressBar tasks={bucketTasks} />
                   </div>
                 </div>
                 <div className='bucket-tasks'>
