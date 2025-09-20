@@ -30,8 +30,12 @@ interface KanbanActions {
   setError: (error: string | null) => void;
   clearError: () => void;
 
-  // Bucket authentication
+  // Bucket operations
   getBucketConfig: (bucketName: string) => Bucket | undefined;
+  createBucket: (
+    name: string,
+    isPrivate?: boolean
+  ) => { bucket: Bucket; token?: string };
 
   // Initialize with sample data
   initializeWithSampleData: () => void;
@@ -315,6 +319,21 @@ export const useKanbanStore = create<KanbanStore>()(
 
         getBucketConfig: (bucketName: string) => {
           return get().buckets.find(b => b.name === bucketName);
+        },
+
+        createBucket: (name: string, isPrivate?: boolean) => {
+          const token = isPrivate ? generateUUID() : undefined;
+          const bucket: Bucket = { name, token };
+
+          set(
+            state => ({
+              buckets: [...state.buckets, bucket],
+            }),
+            false,
+            'createBucket'
+          );
+
+          return { bucket, token };
         },
 
         initializeWithSampleData: () => {
