@@ -244,10 +244,8 @@ export const TaskView: React.FC<CardProps> = ({
       >
         <div className='task-header'>
           {index + 1}
-          <div className='task-id'>{task.id.slice(0, 4)}</div>
-          <div className='task-options'>
-            <span className='task-state-icon'>•</span>
-          </div>
+          <div className='task-id'>{task.id.slice(0, 8)}</div>
+          <div className='task-options'></div>
         </div>
         <div className='task-content'>
           <div
