@@ -1,6 +1,9 @@
 .kanban-board {
   max-width: 1000px;
   margin: 0 auto;
+  padding: 30px 10px;
+  min-height: 100vh;
+  background-color: var(--color-bg);
 
   .bucket-view-header {
     display: flex;
@@ -42,14 +45,15 @@
     font-style: italic;
   }
 
-  .bucket.protected {
-    background-color: var(--color-bg-darker);
-    border-left: 3px solid #ffa500;
+  .lock-icon {
+    width: 12px;
+    font-size: 12px;
+  }
 
-    .lock-icon {
-      margin-left: 8px;
-      font-size: 12px;
-    }
+  .bucket-list-header {
+    font-size: 18px;
+    font-weight: 500;
+    margin-bottom: 10px;
   }
 
   .bucket-list {
@@ -63,12 +67,17 @@
       gap: 10px;
 
       .bucket {
-        background-color: var(--color-bg-darker);
         display: flex;
         align-items: center;
         gap: 10px;
-        padding: 2px 10px;
+        padding: 2px 0;
         font-weight: 500;
+        .bucket-name {
+          cursor: pointer;
+          &:hover {
+            text-decoration: underline;
+          }
+        }
         .bucket-options {
           display: flex;
           align-items: center;
@@ -79,12 +88,6 @@
       button {
         margin-left: 10px;
         padding: 0 5px;
-      }
-
-      .bucket-tasks {
-        display: flex;
-        flex-direction: column;
-        gap: 2px;
       }
     }
   }

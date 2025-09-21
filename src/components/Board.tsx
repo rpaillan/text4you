@@ -49,43 +49,22 @@ const KanbanBoard: React.FC = () => {
 
             return (
               <div key={bucketConfig.name} className='bucket-wrapper'>
-                <div
-                  className={`bucket ${hasProtection ? 'protected' : ''}`}
-                  onClick={() => {
-                    const url = `/bucket/${bucketConfig.name}${
-                      bucketConfig.token !== ''
-                        ? `?token=${encodeURIComponent(bucketConfig.token)}`
-                        : ''
-                    }`;
-                    navigate(url);
-                  }}
-                >
-                  /{bucketConfig.name}
-                  {hasProtection && <span className='lock-icon'>🔒</span>}
-                  <div className='bucket-options'>
-                    <div
-                      className='button'
-                      onClick={() => addTempTask(bucketConfig.name)}
-                      title={
-                        hasProtection ? 'Requires authentication' : 'Add task'
-                      }
-                    >
-                      +
-                    </div>
-                    <ProgressBar tasks={bucketTasks} />
-                  </div>
-                </div>
-                <div className='bucket-tasks'>
-                  {bucketTasks
-                    .sort((a, b) => a.order - b.order)
-                    .map((task, index) => (
-                      <TaskView
-                        key={task.id}
-                        task={task as Task}
-                        index={index}
-                        isObfuscated={hasProtection}
-                      />
-                    ))}
+                <div className={`bucket ${hasProtection ? 'protected' : ''}`}>
+                  <ProgressBar tasks={bucketTasks} />
+                  <span className='lock-icon'>{hasProtection && '🔒'}</span>
+                  <span
+                    className='bucket-name'
+                    onClick={() => {
+                      const url = `/bucket/${bucketConfig.name}${
+                        bucketConfig.token !== ''
+                          ? `?token=${encodeURIComponent(bucketConfig.token)}`
+                          : ''
+                      }`;
+                      navigate(url);
+                    }}
+                  >
+                    {bucketConfig.name}
+                  </span>
                 </div>
               </div>
             );

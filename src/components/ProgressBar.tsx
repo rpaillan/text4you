@@ -47,17 +47,24 @@ const ProgressBar: React.FC<ProgressBarProps> = ({
       }}
       title={`${done} done, ${inProgress} in progress, ${total} total`}
     >
+      {showPercentage && (
+        <span
+          style={{
+            marginLeft: '4px',
+            width: '35px',
+            textAlign: 'right',
+            marginRight: '4px',
+          }}
+        >
+          {total === 0 ? '0%' : `${completionPercentage}%`}
+        </span>
+      )}
       [
       <span style={{ color: 'var(--accent-color, #888)' }}>
         {'█'.repeat(doneLength)}
       </span>
       <span style={{ color: 'green' }}>{'░'.repeat(inProgressLength)}</span>
       <span style={{ color: '#bbb' }}>{'░'.repeat(emptyLength)}</span>]
-      {showPercentage && (
-        <span style={{ marginLeft: '4px' }}>
-          {total === 0 ? '0%' : `${completionPercentage}%`}
-        </span>
-      )}
     </span>
   );
 };
