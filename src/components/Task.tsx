@@ -14,6 +14,7 @@ interface CardProps {
 export const TaskView: React.FC<CardProps> = ({
   task,
   isObfuscated = false,
+  index,
 }) => {
   const descriptionRef = useRef<HTMLDivElement>(null);
   const originalDescription = useRef<string>(task.description || '');
@@ -67,7 +68,6 @@ export const TaskView: React.FC<CardProps> = ({
       e.preventDefault();
       handleCancelDescription();
     } else if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
-      e.preventDefault();
       const element = descriptionRef.current;
       if (!element) return;
 
@@ -243,7 +243,8 @@ export const TaskView: React.FC<CardProps> = ({
         })}
       >
         <div className='task-header'>
-          <div className='task-id'>{task.id.slice(0, 8)}</div>
+          {index + 1}
+          <div className='task-id'>{task.id.slice(0, 4)}</div>
           <div className='task-options'>
             <span className='task-state-icon'>•</span>
           </div>
