@@ -1,7 +1,6 @@
 import React, { useEffect } from 'react';
-import { Task, Bucket } from '../types/index.js';
+import { Bucket } from '../types/index.js';
 import './Board.scss';
-import { TaskView } from './Task.js';
 import ProgressBar from './ProgressBar.js';
 import { useKanbanStore } from '../store/kanbanStore.js';
 import { useNavigate } from 'react-router-dom';
@@ -12,7 +11,6 @@ export const NEW_CARD_DESCRIPTION = 'Click to add description...';
 const KanbanBoard: React.FC = () => {
   const buckets: Bucket[] = useKanbanStore(state => state.buckets);
   const tasks = useKanbanStore(state => state.tasks);
-  const addTempTask = useKanbanStore(state => state.addTempTask);
 
   const initializeWithSampleData = useKanbanStore(
     state => state.initializeWithSampleData
