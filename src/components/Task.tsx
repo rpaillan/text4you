@@ -23,6 +23,7 @@ export const TaskView: React.FC<CardProps> = ({
   const updateTask = useKanbanStore(state => state.updateTask);
   const deleteTask = useKanbanStore(state => state.deleteTask);
   const addTaskAfter = useKanbanStore(state => state.addTaskAfter);
+  const insertSortedList = useKanbanStore(state => state.insertSortedList);
 
   const handleSaveDescription = () => {
     if (!descriptionRef.current) return;
@@ -210,6 +211,42 @@ export const TaskView: React.FC<CardProps> = ({
       e.preventDefault();
       // let create a new task under current task
       addTaskAfter(task.id, task.bucket);
+    }
+    // lets implement inseting a sorted list when the cursor is located in the text
+    if (e.key === 'o' && e.metaKey) {
+      e.preventDefault();
+      // let insert a sorted list
+      // Find the contentEditable div for this task
+      const element = descriptionRef.current;
+      if (!element) return;
+
+      // Get current selection/cursor position
+      const selection = window.getSelection();
+      if (!selection || selection.rangeCount === 0) return;
+
+      const range = selection.getRangeAt(0);
+      
+      // Create the sorted list content as HTML
+      const listHTML = `<ol><li></li></ol>`;
+      
+      // Create a temporary div to convert HTML string to DOM nodes
+      const tempDiv = document.createElement('div');
+      tempDiv.innerHTML = listHTML;
+      
+      // Insert each node at the cursor position
+      const fragment = document.createDocumentFragment();
+      while (tempDiv.firstChild) {
+        fragment.appendChild(tempDiv.firstChild);
+      }
+      
+      // Delete any selected content and insert the list
+      range.deleteContents();
+      range.insertNode(fragment);
+      
+      // Move cursor to end of inserted content
+      range.collapse(false);
+      selection.removeAllRanges();
+      selection.addRange(range);
     }
   };
 
