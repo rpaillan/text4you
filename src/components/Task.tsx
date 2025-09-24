@@ -226,8 +226,9 @@ export const TaskView: React.FC<CardProps> = ({
 
       const range = selection.getRangeAt(0);
       
+      const randomClassOlName = `ol-${Math.random().toString(36).substring(2, 10)}`;
       // Create the sorted list content as HTML
-      const listHTML = `<ol><li></li></ol>`;
+      const listHTML = `<ol class="${randomClassOlName}"><li></li></ol>`;
       
       // Create a temporary div to convert HTML string to DOM nodes
       const tempDiv = document.createElement('div');
@@ -243,10 +244,18 @@ export const TaskView: React.FC<CardProps> = ({
       range.deleteContents();
       range.insertNode(fragment);
       
-      // Move cursor to end of inserted content
-      range.collapse(false);
-      selection.removeAllRanges();
-      selection.addRange(range);
+      // Find the first li element that was just inserted and place cursor inside it
+      // let find the first li element in the fragment
+      const insertedOl = element.querySelector(`.${randomClassOlName}`);
+      const firstLi = insertedOl?.querySelector('li');
+      
+      if (firstLi) {
+        const newRange = document.createRange();
+        newRange.setStart(firstLi, 0);
+        newRange.collapse(true);
+        selection.removeAllRanges();
+        selection.addRange(newRange);
+      }
     }
   };
 
