@@ -23,7 +23,6 @@ export const TaskView: React.FC<CardProps> = ({
   const updateTask = useKanbanStore(state => state.updateTask);
   const deleteTask = useKanbanStore(state => state.deleteTask);
   const addTaskAfter = useKanbanStore(state => state.addTaskAfter);
-  const insertSortedList = useKanbanStore(state => state.insertSortedList);
 
   const handleSaveDescription = () => {
     if (!descriptionRef.current) return;
