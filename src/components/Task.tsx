@@ -213,7 +213,7 @@ export const TaskView: React.FC<CardProps> = ({
       addTaskAfter(task.id, task.bucket);
     }
     // lets implement inseting a sorted list when the cursor is located in the text
-    if (e.key === 'o' && e.metaKey) {
+    if ((e.key === 'o' || e.key === 'u') && e.metaKey) {
       e.preventDefault();
       // let insert a sorted list
       // Find the contentEditable div for this task
@@ -225,10 +225,11 @@ export const TaskView: React.FC<CardProps> = ({
       if (!selection || selection.rangeCount === 0) return;
 
       const range = selection.getRangeAt(0);
+      const targetTag = e.key === 'o' ? 'ol' : 'ul';
       
-      const randomClassOlName = `ol-${Math.random().toString(36).substring(2, 10)}`;
+      const randomClassOlName = `${targetTag}-${Math.random().toString(36).substring(2, 10)}`;
       // Create the sorted list content as HTML
-      const listHTML = `<ol class="${randomClassOlName}"><li></li></ol>`;
+      const listHTML = `<${targetTag} class="${randomClassOlName}"><li></li></${targetTag}>`;
       
       // Create a temporary div to convert HTML string to DOM nodes
       const tempDiv = document.createElement('div');
@@ -255,6 +256,37 @@ export const TaskView: React.FC<CardProps> = ({
         newRange.collapse(true);
         selection.removeAllRanges();
         selection.addRange(newRange);
+      }
+    }
+    // lest make selected text bold when pressing meta+b
+    if (e.key === 'b' && e.metaKey) {
+      e.preventDefault();
+      // let make the selected text bold
+      const selection = window.getSelection();
+      if (!selection || selection.rangeCount === 0) return;
+      const range = selection.getRangeAt(0);
+      const selectedText = range.toString();
+      if (!selectedText) return;
+
+      const commonAncestorContainer = range.commonAncestorContainer;
+
+      if (commonAncestorContainer.parentElement && commonAncestorContainer.parentElement.tagName === 'B') {
+        // lets remove the b tag, mantaining internal elements
+        const bTag = commonAncestorContainer.parentElement;
+        const childNodes = bTag.childNodes;
+        bTag.replaceWith(...childNodes);
+        return;
+      } else {
+        // lets add the b tag
+        const boldElem = document.createElement('b');
+        boldElem.textContent = selectedText;
+        range.deleteContents();
+        range.insertNode(boldElem);
+        // Move the cursor after the inserted <b> element
+        range.setStartAfter(boldElem);
+        range.collapse(true);
+        selection.removeAllRanges();
+        selection.addRange(range);
       }
     }
   };
