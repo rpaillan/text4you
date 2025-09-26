@@ -5,6 +5,7 @@ import { TaskView } from './Task.js';
 import { useKanbanStore } from '../store/kanbanStore.js';
 import { useNavigate } from 'react-router-dom';
 import { obfuscateTasks } from '../utils/obfuscation.js';
+import ProgressBar from './ProgressBar.js';
 
 interface BucketViewProps {
   bucket: string;
@@ -66,54 +67,50 @@ const BucketView: React.FC<BucketViewProps> = ({ bucket, token }) => {
   }
 
   return (
-    <div className='kanban-board'>
-      <div className='bucket-view-header'>
-        <button className='back-button' onClick={() => navigate('/')}>
-          ← Back to Board
-        </button>
+    <>
+      <div className='app-header'>
+        <div className='cbutton' onClick={() => navigate('/')}>
+          Back to Board
+        </div>
+        <div className='cbutton' onClick={handleAddTask}>
+          Add Task
+        </div>
+        <div>
+          <ProgressBar tasks={bucketTasks} />
+        </div>
+        <div className={`bucket ${bucketConfig?.token ? 'protected' : ''}`}>
+          bucket / {bucketConfig?.name || bucket}
+          {bucketConfig?.token && <span className='lock-icon'>🔒</span>}
+          <div className='bucket-options'></div>
+        </div>
       </div>
-
-      <div className='vertical-card-list'>
-        <div className='bucket-list'>
-          <div className='bucket-wrapper'>
-            <div className={`bucket ${bucketConfig?.token ? 'protected' : ''}`}>
-              /{bucketConfig?.name || bucket}
-              {bucketConfig?.token && <span className='lock-icon'>🔒</span>}
-              <div className='bucket-options'>
-                <div
-                  className='button'
-                  onClick={handleAddTask}
-                  title={
-                    !isAuthenticated ? 'Authentication required' : 'Add task'
-                  }
-                  style={{ opacity: !isAuthenticated ? 0.5 : 1 }}
-                >
-                  +
-                </div>
+      <div className='kanban-board'>
+        <div className='vertical-card-list'>
+          <div className='bucket-list'>
+            <div className='bucket-wrapper'>
+              <div className='bucket-tasks'>
+                {bucketTasks.length === 0 ? (
+                  <div className='no-tasks'>
+                    No tasks found in bucket "{bucketConfig?.name || bucket}"
+                  </div>
+                ) : (
+                  bucketTasks
+                    .sort((a, b) => a.order - b.order)
+                    .map((task, index) => (
+                      <TaskView
+                        key={task.id}
+                        task={task as Task}
+                        index={index}
+                        isObfuscated={!isAuthenticated}
+                      />
+                    ))
+                )}
               </div>
-            </div>
-            <div className='bucket-tasks'>
-              {bucketTasks.length === 0 ? (
-                <div className='no-tasks'>
-                  No tasks found in bucket "{bucketConfig?.name || bucket}"
-                </div>
-              ) : (
-                bucketTasks
-                  .sort((a, b) => a.order - b.order)
-                  .map((task, index) => (
-                    <TaskView
-                      key={task.id}
-                      task={task as Task}
-                      index={index}
-                      isObfuscated={!isAuthenticated}
-                    />
-                  ))
-              )}
             </div>
           </div>
         </div>
       </div>
-    </div>
+    </>
   );
 };
 

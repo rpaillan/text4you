@@ -33,43 +33,51 @@ const KanbanBoard: React.FC = () => {
     return <div className='error'>Error: {error}</div>;
   }
   return (
-    <div className='kanban-board'>
-      <div className='vertical-card-list'>
-        <div className='bucket-list'>
-          {buckets.map(bucketConfig => {
-            const hasProtection = bucketConfig.token !== '';
-            let bucketTasks = tasks.filter(
-              task => task.bucket === bucketConfig.name
-            );
-            if (hasProtection) {
-              bucketTasks = obfuscateTasks(bucketTasks);
-            }
-
-            return (
-              <div key={bucketConfig.name} className='bucket-wrapper'>
-                <div className={`bucket ${hasProtection ? 'protected' : ''}`}>
-                  <ProgressBar tasks={bucketTasks} />
-                  <span className='lock-icon'>{hasProtection && '🔒'}</span>
-                  <span
-                    className='bucket-name'
-                    onClick={() => {
-                      const url = `/bucket/${bucketConfig.name}${
-                        bucketConfig.token !== ''
-                          ? `?token=${encodeURIComponent(bucketConfig.token)}`
-                          : ''
-                      }`;
-                      navigate(url);
-                    }}
-                  >
-                    {bucketConfig.name}
-                  </span>
-                </div>
-              </div>
-            );
-          })}
+    <>
+      <div className='app-header'>
+        <div>
+          TextTask List
         </div>
       </div>
-    </div>
+
+      <div className='kanban-board'>
+        <div className='vertical-card-list'>
+          <div className='bucket-list'>
+            {buckets.map(bucketConfig => {
+              const hasProtection = bucketConfig.token !== '';
+              let bucketTasks = tasks.filter(
+                task => task.bucket === bucketConfig.name
+              );
+              if (hasProtection) {
+                bucketTasks = obfuscateTasks(bucketTasks);
+              }
+
+              return (
+                <div key={bucketConfig.name} className='bucket-wrapper'>
+                  <div className={`bucket ${hasProtection ? 'protected' : ''}`}>
+                    <ProgressBar tasks={bucketTasks} />
+                    <span className='lock-icon'>{hasProtection && '🔒'}</span>
+                    <span
+                      className='bucket-name'
+                      onClick={() => {
+                        const url = `/bucket/${bucketConfig.name}${
+                          bucketConfig.token !== ''
+                            ? `?token=${encodeURIComponent(bucketConfig.token)}`
+                            : ''
+                        }`;
+                        navigate(url);
+                      }}
+                    >
+                      {bucketConfig.name}
+                    </span>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+    </>
   );
 };
 
