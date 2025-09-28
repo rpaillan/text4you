@@ -7,6 +7,7 @@ import BucketCreation from './components/BucketCreation';
 import NotFound from './components/NotFound';
 import { useKanbanStore } from './store/kanbanStore';
 import './App.scss';
+import { CodeGenBack } from './components/CodeGenBack';
 
 // Component wrapper for BucketView to extract params
 function BucketViewWrapper(): React.JSX.Element {
@@ -35,6 +36,8 @@ function BucketViewWrapper(): React.JSX.Element {
 
 function App(): React.JSX.Element {
   return (
+    <>
+    <CodeGenBack />
     <div className='app'>
       <Routes>
         <Route path='/' element={<KanbanBoard />} />
@@ -42,6 +45,7 @@ function App(): React.JSX.Element {
         <Route path='*' element={<NotFound />} />
       </Routes>
     </div>
+    </>
   );
 }
 

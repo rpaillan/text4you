@@ -11,11 +11,7 @@ interface CardProps {
   isObfuscated?: boolean;
 }
 
-export const TaskView: React.FC<CardProps> = ({
-  task,
-  isObfuscated = false,
-  index,
-}) => {
+export const TaskView: React.FC<CardProps> = ({ task, isObfuscated = false, index }) => {
   const descriptionRef = useRef<HTMLDivElement>(null);
   const originalDescription = useRef<string>(task.description || '');
 
@@ -134,9 +130,7 @@ export const TaskView: React.FC<CardProps> = ({
 
         // Find all task elements in the page
         const bucketElement = element.closest('.bucket-list');
-        const allTasks = bucketElement?.querySelectorAll(
-          '.task-description-input'
-        );
+        const allTasks = bucketElement?.querySelectorAll('.task-description-input');
         if (!allTasks) return;
 
         const currentIndex = Array.from(allTasks).indexOf(element);
@@ -225,30 +219,30 @@ export const TaskView: React.FC<CardProps> = ({
 
       const range = selection.getRangeAt(0);
       const targetTag = e.key === 'o' ? 'ol' : 'ul';
-      
+
       const randomClassOlName = `${targetTag}-${Math.random().toString(36).substring(2, 10)}`;
       // Create the sorted list content as HTML
       const listHTML = `<${targetTag} class="${randomClassOlName}"><li></li></${targetTag}>`;
-      
+
       // Create a temporary div to convert HTML string to DOM nodes
       const tempDiv = document.createElement('div');
       tempDiv.innerHTML = listHTML;
-      
+
       // Insert each node at the cursor position
       const fragment = document.createDocumentFragment();
       while (tempDiv.firstChild) {
         fragment.appendChild(tempDiv.firstChild);
       }
-      
+
       // Delete any selected content and insert the list
       range.deleteContents();
       range.insertNode(fragment);
-      
+
       // Find the first li element that was just inserted and place cursor inside it
       // let find the first li element in the fragment
       const insertedOl = element.querySelector(`.${randomClassOlName}`);
       const firstLi = insertedOl?.querySelector('li');
-      
+
       if (firstLi) {
         const newRange = document.createRange();
         newRange.setStart(firstLi, 0);
@@ -319,12 +313,11 @@ export const TaskView: React.FC<CardProps> = ({
           obfuscated: isObfuscated,
         })}
       >
-        <div className='task-header'>
-          {index + 1}
-          <div className='task-id'>{task.id.slice(0, 8)}</div>
-          <div className='task-options'></div>
+        <div className="task-header">
+          <span className="task-id">{task.id.slice(0, 8)}</span>
+          <span>{index + 1}</span>
         </div>
-        <div className='task-content'>
+        <div className="task-content">
           <div
             tabIndex={0}
             data-task-id={task.id}
@@ -337,9 +330,7 @@ export const TaskView: React.FC<CardProps> = ({
             onClick={() => !isObfuscated && editingTask(task.id)}
             onBlur={handleSaveDescription}
             dangerouslySetInnerHTML={{
-              __html: task.description
-                ? task.description.replace(/\n/g, '<br>')
-                : '',
+              __html: task.description ? task.description.replace(/\n/g, '<br>') : '',
             }}
           />
         </div>

@@ -1,11 +1,12 @@
 .task {
   display: flex;
-  align-items: flex-start;
+  align-items: stretch;
   padding: 2px 0;
-  border-left: 2px solid #333;
 
   &.editing {
-    background-color: var(--color-bg-elevated);
+    .task-content {
+      background-color: var(--color-bg-elevated);
+    }
   }
 
   &.obfuscated {
@@ -34,26 +35,39 @@
   }
 
   &.state-prog {
-    border-color: var(--color-success);
+    .task-header {
+      border-color: var(--color-success);
+    }
   }
   &.state-done {
     opacity: 0.35;
+    .task-header {
+      border-color: var(--color-success);
+    }
   }
   &.state-blck {
-    border-color: var(--color-danger);
+    .task-header {
+      border-color: var(--color-danger);
+    }
   }
 
   .task-header {
     display: flex;
-    align-items: center;
-    gap: 10px;
+    align-items: flex-start;
+    justify-content: flex-end;
+    flex-shrink: 0;
+    gap: 12px;
     padding: 0 10px;
+    width: 90px;
+
+    background: transparent;
+    border-right: 2px solid #333;
 
     color: var(--color-text-secondary);
 
     .task-id {
-      font-size: 10px;
-      width: 50px;
+      padding-top: 3px;
+      font-size: 12px;
     }
     .task-options {
       display: flex;
@@ -73,7 +87,13 @@
   }
 
   .task-content {
+    background-color: var(--color-bg);
+    opacity: 0.9;
     flex-grow: 1;
+    padding: 0 12px;
+    border-top-right-radius: 5px;
+    border-bottom-right-radius: 5px;
+
     .task-description-input {
       &:focus {
         outline: none;

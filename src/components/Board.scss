@@ -1,12 +1,7 @@
 .kanban-board {
-  max-width: 120ch;
-  margin: 0 auto;
-  padding: 0 10px;
+  max-width: 110ch;
   padding-bottom: 50px;
-  min-height: 100vh;
-  background-color: var(--color-bg);
-
-
+  pointer-events: auto;
 
   .no-tasks {
     padding: 20px;
