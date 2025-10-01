@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Task, Bucket } from '../types/index.js';
 import './Board.scss'; // Reuse existing styles
 import { TaskView } from './Task.js';
@@ -23,11 +23,15 @@ const BucketView: React.FC<BucketViewProps> = ({ bucket, token }) => {
   const error = useKanbanStore(state => state.error);
 
   const bucketConfig = getBucketConfig(bucket);
-  let bucketTasks = tasks.filter(task => task.bucket === bucket);
-
-  if (!isAuthenticated) {
-    bucketTasks = obfuscateTasks(bucketTasks);
-  }
+  let bucketTasks = useMemo(() => {
+    let list = tasks.filter(task => task.bucket === bucket);
+    if (!isAuthenticated) {
+      list = obfuscateTasks(list);
+    }
+    return list;
+  }, [tasks, bucket, isAuthenticated]);
+  const activeTasks = useMemo(() => bucketTasks.filter(task => task.state !== 'done'), [bucketTasks]);
+  const doneTasks = useMemo(() => bucketTasks.filter(task => task.state === 'done'), [bucketTasks]);
 
   useEffect(() => {
     // Initialize with sample data if no buckets exist
@@ -70,10 +74,21 @@ const BucketView: React.FC<BucketViewProps> = ({ bucket, token }) => {
           <div className="bucket-list">
             <div className="bucket-wrapper">
               <div className="bucket-tasks">
-                {bucketTasks.length === 0 ? (
+                {activeTasks.length === 0 ? (
                   <div className="no-tasks">No tasks found in bucket "{bucketConfig?.name || bucket}"</div>
                 ) : (
-                  bucketTasks
+                  activeTasks
+                    .sort((a, b) => a.order - b.order)
+                    .map((task, index) => (
+                      <TaskView key={task.id} task={task as Task} index={index} isObfuscated={!isAuthenticated} />
+                    ))
+                )}
+              </div>
+              <div className="bucket-tasks">
+                {doneTasks.length === 0 ? (
+                  <div className="no-tasks">No done tasks found in bucket "{bucketConfig?.name || bucket}"</div>
+                ) : (
+                  doneTasks
                     .sort((a, b) => a.order - b.order)
                     .map((task, index) => (
                       <TaskView key={task.id} task={task as Task} index={index} isObfuscated={!isAuthenticated} />

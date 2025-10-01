@@ -314,8 +314,9 @@ export const TaskView: React.FC<CardProps> = ({ task, isObfuscated = false, inde
         })}
       >
         <div className="task-header">
-          <span className="task-id">{task.id.slice(0, 8)}</span>
-          <span>{index + 1}</span>
+          <span>
+            {task.id.slice(0, 3)}.{index + 1}
+          </span>
         </div>
         <div className="task-content">
           <div

@@ -42,7 +42,7 @@
   &.state-done {
     opacity: 0.35;
     .task-header {
-      border-color: var(--color-success);
+      border-color: #333;
     }
   }
   &.state-blck {
@@ -60,15 +60,13 @@
     padding: 0 10px;
     width: 90px;
 
+    font-family: monospace;
+
     background: transparent;
     border-right: 2px solid #333;
 
     color: var(--color-text-secondary);
 
-    .task-id {
-      padding-top: 3px;
-      font-size: 12px;
-    }
     .task-options {
       display: flex;
       align-items: center;
