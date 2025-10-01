@@ -69,12 +69,12 @@ export const CodeGenBack = () => {
           if (format === 'color') {
             for (let i = 0; i < charLenght; i++) {
               password[highlightProbIndex + i] =
-                `<span class="code-gen-back-char" style="color: ${color};">${password[highlightProbIndex + i]}</span>`;
+                `<span class="code-gen-back-char color-highlight" style="color: ${color};">${password[highlightProbIndex + i]}</span>`;
             }
           } else {
             for (let i = 0; i < charLenght; i++) {
               password[highlightProbIndex + i] =
-                `<span class="code-gen-back-char" style="background-color: ${color};">${password[highlightProbIndex + i]}</span>`;
+                `<span class="code-gen-back-char background-highlight" style="background-color: ${color};">${password[highlightProbIndex + i]}</span>`;
             }
           }
         }

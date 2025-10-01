@@ -17,6 +17,11 @@
   z-index: 1;
 
   .code-gen-back-char {
-    opacity: 0.3;
+    &.color-highlight {
+      opacity: 0.3;
+    }
+    &.background-highlight {
+      opacity: 0.2;
+    }
   }
 }
