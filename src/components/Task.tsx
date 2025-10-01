@@ -24,12 +24,17 @@ export const TaskView: React.FC<CardProps> = ({ task, isObfuscated = false, inde
     if (!descriptionRef.current) return;
 
     // Convert HTML content to plain text with newlines
-    const htmlContent = descriptionRef.current.innerHTML;
+    let htmlContent = descriptionRef.current.innerHTML;
 
     if (htmlContent.trim() === '') {
       deleteTask(task.id);
       return;
     }
+
+    // let look for text inside htmlContent and if it contains text tag:issue, lets replace that with <span class="tag-issue">tag:issue</span>
+    htmlContent = htmlContent.replace(/tag:issue/g, '<span class="t4y-tag t4y-tag-issue">issue</span>');
+    htmlContent = htmlContent.replace(/tag:following/g, '<span class="t4y-tag t4y-tag-following">following</span>');
+    htmlContent = htmlContent.replace(/tag:notice/g, '<span class="t4y-tag t4y-tag-notice">notice</span>');
 
     if (htmlContent !== (task.description || '')) {
       updateTask(task.id, {

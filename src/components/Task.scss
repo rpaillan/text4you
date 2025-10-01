@@ -117,5 +117,21 @@
       min-height: 1em;
       min-width: 1em;
     }
+    .t4y-tag {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--color-bg);
+      padding: 0px 2px;
+      border-radius: 2px;
+    }
+    .t4y-tag-issue {
+      background-color: var(--color-danger);
+    }
+    .t4y-tag-following {
+      background-color: var(--color-warning);
+    }
+    .t4y-tag-notice {
+      background-color: var(--color-success);
+    }
   }
 }
