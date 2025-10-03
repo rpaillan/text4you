@@ -289,6 +289,21 @@ export const TaskView: React.FC<CardProps> = ({ task, isObfuscated = false, inde
     }
   };
 
+  const handlePaste = () => {
+    // Don't prevent default - let browser paste normally
+    // Run code after the paste completes
+    setTimeout(() => {
+      const element = descriptionRef.current;
+      if (!element) return;
+      // insert a <span></span> where the cursor is.
+      const selection = window.getSelection();
+      if (!selection || selection.rangeCount === 0) return;
+      const span = document.createElement('span');
+      span.textContent = ' ';
+      selection.anchorNode?.parentElement?.parentElement?.appendChild(span);
+    }, 0);
+  };
+
   // Effect to update refs when card data changes
   useEffect(() => {
     originalDescription.current = task.description || '';
@@ -335,6 +350,7 @@ export const TaskView: React.FC<CardProps> = ({ task, isObfuscated = false, inde
             onFocus={() => !isObfuscated && editingTask(task.id)}
             onClick={() => !isObfuscated && editingTask(task.id)}
             onBlur={handleSaveDescription}
+            onPaste={handlePaste}
             dangerouslySetInnerHTML={{
               __html: task.description ? task.description.replace(/\n/g, '<br>') : '',
             }}

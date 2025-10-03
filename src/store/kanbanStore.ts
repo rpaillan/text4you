@@ -18,10 +18,7 @@ interface KanbanActions {
   // Card CRUD operations
   addTempTask: (bucket: string) => void;
   addTaskAfter: (afterTaskId: string, bucket: string) => void;
-  updateTask: (
-    id: string,
-    cardData: Partial<Omit<Task, 'id' | 'created_at' | 'updated_at'>>
-  ) => void;
+  updateTask: (id: string, cardData: Partial<Omit<Task, 'id' | 'created_at' | 'updated_at'>>) => void;
   deleteTask: (id: string) => void;
 
   // Utility actions
@@ -31,10 +28,7 @@ interface KanbanActions {
 
   // Bucket operations
   getBucketConfig: (bucketName: string) => Bucket | undefined;
-  createBucket: (
-    name: string,
-    token?: string
-  ) => { bucket: Bucket; token: string };
+  createBucket: (name: string, token?: string) => { bucket: Bucket; token: string };
 
   // Initialize with sample data
   initializeWithSampleData: () => void;
@@ -165,27 +159,20 @@ export const useKanbanStore = create<KanbanStore>()(
         nextId: 6, // Start after sample data IDs
 
         editingTask: (taskId: string) => {
-          console.log('editingTask', taskId);
           const task = get().tasks.find(task => task.id === taskId);
           if (!task) return;
+          if (task.editing) return;
           set(state => ({
             tasks: state.tasks.map(task =>
-              task.id === taskId
-                ? { ...task, editing: true }
-                : { ...task, editing: false }
+              task.id === taskId ? { ...task, editing: true } : { ...task, editing: false }
             ),
           }));
         },
 
         addTempTask: (bucket: string) => {
           // Find the highest order in this bucket and add 1000
-          const tasksInBucket = get().tasks.filter(
-            task => task.bucket === bucket
-          );
-          const maxOrder =
-            tasksInBucket.length > 0
-              ? Math.max(...tasksInBucket.map(task => task.order))
-              : 0;
+          const tasksInBucket = get().tasks.filter(task => task.bucket === bucket);
+          const maxOrder = tasksInBucket.length > 0 ? Math.max(...tasksInBucket.map(task => task.order)) : 0;
 
           const newTempCard: Task = {
             id: generateUUID(),
@@ -217,14 +204,10 @@ export const useKanbanStore = create<KanbanStore>()(
 
           // Find the next task in the same bucket
           const tasksInBucket = tasks.filter(t => t.bucket === bucket);
-          const nextTask = tasksInBucket
-            .filter(t => t.order > afterTask.order)
-            .sort((a, b) => a.order - b.order)[0];
+          const nextTask = tasksInBucket.filter(t => t.order > afterTask.order).sort((a, b) => a.order - b.order)[0];
 
           // Calculate new order
-          let newOrder = nextTask
-            ? (afterTask.order + nextTask.order) / 2
-            : afterTask.order + 1000;
+          let newOrder = nextTask ? (afterTask.order + nextTask.order) / 2 : afterTask.order + 1000;
 
           // Ensure unique order (Option 1 implementation)
           const existingOrders = tasksInBucket.map(t => t.order);
@@ -255,10 +238,7 @@ export const useKanbanStore = create<KanbanStore>()(
           );
         },
 
-        updateTask: (
-          id: string,
-          cardData: Partial<Omit<Task, 'id' | 'created_at' | 'updated_at'>>
-        ) => {
+        updateTask: (id: string, cardData: Partial<Omit<Task, 'id' | 'created_at' | 'updated_at'>>) => {
           const now = new Date().toISOString();
 
           // before updating make sure is has changes.
@@ -269,10 +249,7 @@ export const useKanbanStore = create<KanbanStore>()(
           }
           let haChanges = false;
           Object.keys(cardData).forEach(key => {
-            if (
-              cardData[key as keyof typeof cardData] !==
-              card[key as keyof typeof cardData]
-            ) {
+            if (cardData[key as keyof typeof cardData] !== card[key as keyof typeof cardData]) {
               haChanges = true;
             }
           });
@@ -281,11 +258,7 @@ export const useKanbanStore = create<KanbanStore>()(
           }
           set(
             state => ({
-              tasks: state.tasks.map(card =>
-                card.id === id
-                  ? { ...card, ...cardData, updated_at: now }
-                  : card
-              ),
+              tasks: state.tasks.map(card => (card.id === id ? { ...card, ...cardData, updated_at: now } : card)),
               error: null,
             }),
             false,
