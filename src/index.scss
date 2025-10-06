@@ -2,8 +2,8 @@
   /* ===== COLOR SYSTEM ===== */
 
   /* Dark Mode Colors */
-  --color-bg-darker: #12141a;
   --color-bg: #181a20; /* deep dark background */
+  --color-bg-darker: #14161d;
   --color-bg-elevated: #23272f; /* for cards, modals, etc. */
   --color-bg-active: #2d323c;
 
@@ -19,6 +19,20 @@
   --color-warning: #facc15;
 
   --font-size-base: 16px;
+}
+
+#root.light {
+  --color-bg-darker: #f1f5fa;
+  --color-bg: #f1f5fa;
+  --color-bg-elevated: #e1e5eb;
+  --color-bg-active: #d1d5db;
+  --color-text-primary: #222426;
+  --color-text-secondary: #7b8597;
+  --color-text-muted: #7b8597;
+  --color-accent: #4f8cff;
+  --color-danger: #ff5c5c;
+  --color-success: #4ade80;
+  --color-warning: #facc15;
 }
 
 body {

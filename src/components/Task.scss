@@ -2,6 +2,7 @@
   display: flex;
   align-items: stretch;
   padding: 2px 0;
+  color: var(--color-text-primary);
 
   &.editing {
     .task-content {
@@ -60,12 +61,9 @@
     padding: 0 10px;
     width: 90px;
 
-    font-family: monospace;
-
     background: transparent;
+    letter-spacing: 0.12em;
     border-right: 2px solid #333;
-
-    color: var(--color-text-secondary);
 
     .task-options {
       display: flex;
@@ -120,23 +118,24 @@
     }
     span {
       font-size: var(--font-size-base) !important;
+      font-family: Lato, sans-serif !important;
       background-color: transparent !important;
     }
     .t4y-tag {
-      font-size: 12px;
+      font-size: 14px !important;
       font-weight: 600;
       color: var(--color-bg);
-      padding: 0px 2px;
+      padding: 0px 4px;
       border-radius: 2px;
     }
     .t4y-tag-issue {
-      background-color: var(--color-danger);
+      background-color: var(--color-danger) !important;
     }
     .t4y-tag-following {
-      background-color: var(--color-warning);
+      background-color: var(--color-warning) !important;
     }
     .t4y-tag-notice {
-      background-color: var(--color-success);
+      background-color: var(--color-success) !important;
     }
   }
 }
