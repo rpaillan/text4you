@@ -23,6 +23,7 @@ class HtmlEditor {
   }
 
   // if user is on a nested li, and press shift+tab, it should move the li out to become a sibling of its parent li.
+  // All following siblings will become children of the promoted li to maintain order.
   undoTabIdentationOnLists(li: HTMLElement) {
     const parentUl = li.parentElement;
     if (!parentUl || parentUl.tagName !== 'UL') {
@@ -39,16 +40,42 @@ class HtmlEditor {
       return;
     }
 
-    // Clone the li and insert it after the grandParentLi
-    const clonedLi = li.cloneNode(true);
+    // Clone the li (without deep cloning - we'll handle children separately)
+    const clonedLi = li.cloneNode(true) as HTMLElement;
+
+    // Collect all following siblings to nest under the promoted item
+    const followingSiblings: HTMLElement[] = [];
+    let nextSibling = li.nextElementSibling;
+    while (nextSibling) {
+      if (nextSibling.tagName === 'LI') {
+        followingSiblings.push(nextSibling as HTMLElement);
+      }
+      nextSibling = nextSibling.nextElementSibling;
+    }
+
+    // If there are following siblings, nest them under the promoted item
+    if (followingSiblings.length > 0) {
+      const newNestedUl = document.createElement('ul');
+      followingSiblings.forEach(sibling => {
+        newNestedUl.appendChild(sibling.cloneNode(true));
+      });
+      clonedLi.appendChild(newNestedUl);
+    }
+
+    // Insert the promoted li after the grandParentLi
     if (grandParentLi.nextSibling) {
       greatGrandParentUl.insertBefore(clonedLi, grandParentLi.nextSibling);
     } else {
       greatGrandParentUl.appendChild(clonedLi);
     }
 
-    // Remove the original li
+    // Remove the original li and its following siblings
     parentUl.removeChild(li);
+    followingSiblings.forEach(sibling => {
+      if (sibling.parentElement === parentUl) {
+        parentUl.removeChild(sibling);
+      }
+    });
 
     // If the parent ul is now empty, remove it
     if (parentUl.children.length === 0) {

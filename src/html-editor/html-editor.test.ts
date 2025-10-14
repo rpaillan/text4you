@@ -343,7 +343,7 @@ describe('HtmlEditor', () => {
       expect(nestedUls.length).toBe(0);
     });
 
-    it('should keep ul if other items remain after moving one nested li', () => {
+    it('should adopt following siblings as children when promoting an item', () => {
       mainContainer.innerHTML = `
         <ul>
           <li>Item 1
@@ -358,14 +358,16 @@ describe('HtmlEditor', () => {
 
       htmlEditor.undoTabIdentationOnLists(nestedLi);
 
+      // When promoting Nested item 1, it takes Nested item 2 with it as a child
+      // to maintain the hierarchical order
       const expectedHTML = `
         <ul>
-          <li>Item 1
+          <li>Item 1</li>
+          <li>Nested item 1
             <ul>
               <li>Nested item 2</li>
             </ul>
           </li>
-          <li>Nested item 1</li>
         </ul>
       `;
 
