@@ -234,6 +234,30 @@ describe('HtmlEditor', () => {
 
       expectHTMLToEqual(mainContainer.innerHTML, expectedHTML);
     });
+
+    it('should work with ordered lists (ol)', () => {
+      mainContainer.innerHTML = `
+        <ol>
+          <li>Item 1</li>
+          <li>Item 2</li>
+        </ol>
+      `;
+      const li = mainContainer.querySelectorAll('li')[1] as HTMLElement;
+
+      htmlEditor.tabIdentationOnLists(li);
+
+      const expectedHTML = `
+        <ol>
+          <li>Item 1
+            <ul>
+              <li>Item 2</li>
+            </ul>
+          </li>
+        </ol>
+      `;
+
+      expectHTMLToEqual(mainContainer.innerHTML, expectedHTML);
+    });
   });
 
   describe('undoTabIdentationOnLists', () => {
@@ -491,6 +515,30 @@ describe('HtmlEditor', () => {
             </ul>
           </li>
         </ul>
+      `;
+
+      expectHTMLToEqual(mainContainer.innerHTML, expectedHTML);
+    });
+
+    it('should work with ordered lists (ol)', () => {
+      mainContainer.innerHTML = `
+        <ol>
+          <li>Item 1
+            <ul>
+              <li>Nested item</li>
+            </ul>
+          </li>
+        </ol>
+      `;
+      const nestedLi = mainContainer.querySelectorAll('ul li')[0] as HTMLElement;
+
+      htmlEditor.undoTabIdentationOnLists(nestedLi);
+
+      const expectedHTML = `
+        <ol>
+          <li>Item 1</li>
+          <li>Nested item</li>
+        </ol>
       `;
 
       expectHTMLToEqual(mainContainer.innerHTML, expectedHTML);

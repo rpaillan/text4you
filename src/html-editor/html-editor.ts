@@ -35,8 +35,8 @@ class HtmlEditor {
       return;
     }
 
-    const greatGrandParentUl = grandParentLi.parentElement;
-    if (!greatGrandParentUl || greatGrandParentUl.tagName !== 'UL') {
+    const greatGrandParentList = grandParentLi.parentElement;
+    if (!greatGrandParentList || (greatGrandParentList.tagName !== 'UL' && greatGrandParentList.tagName !== 'OL')) {
       return;
     }
 
@@ -64,9 +64,9 @@ class HtmlEditor {
 
     // Insert the promoted li after the grandParentLi
     if (grandParentLi.nextSibling) {
-      greatGrandParentUl.insertBefore(clonedLi, grandParentLi.nextSibling);
+      greatGrandParentList.insertBefore(clonedLi, grandParentLi.nextSibling);
     } else {
-      greatGrandParentUl.appendChild(clonedLi);
+      greatGrandParentList.appendChild(clonedLi);
     }
 
     // Remove the original li and its following siblings
