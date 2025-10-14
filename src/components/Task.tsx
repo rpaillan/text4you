@@ -4,6 +4,7 @@ import { Task } from '../types/index.js';
 import './Task.scss';
 import clsx from 'clsx';
 import { useKanbanStore } from '../store/kanbanStore.js';
+import { htmlEditor } from '../html-editor/html-editor.js';
 
 interface CardProps {
   task: Task;
@@ -204,6 +205,78 @@ export const TaskView: React.FC<CardProps> = ({ task, isObfuscated = false, inde
       e.preventDefault();
       // let delete the task
       deleteTask(task.id);
+    } else if (e.key === 'Tab') {
+      // Handle Tab and Shift+Tab for list indentation
+      const selection = window.getSelection();
+      if (!selection || selection.rangeCount === 0) return;
+
+      const range = selection.getRangeAt(0);
+      let node = range.startContainer;
+
+      // Find the closest LI element
+      let liElement: HTMLElement | null = null;
+      if (node.nodeType === Node.TEXT_NODE) {
+        liElement = (node.parentElement?.closest('li') as HTMLElement) || null;
+      } else if (node.nodeType === Node.ELEMENT_NODE) {
+        const element = node as HTMLElement;
+        liElement = element.tagName === 'LI' ? element : (element.closest('li') as HTMLElement) || null;
+      }
+
+      if (liElement) {
+        e.preventDefault();
+
+        // Store the text content to find the element after DOM manipulation
+        const liTextContent = liElement.textContent || '';
+        const cursorOffset = range.startOffset;
+
+        if (e.shiftKey) {
+          // Shift+Tab: Un-indent (promote) the list item
+          htmlEditor.undoTabIdentationOnLists(liElement);
+        } else {
+          // Tab: Indent (nest) the list item
+          htmlEditor.tabIdentationOnLists(liElement);
+        }
+
+        // After modifying the DOM, restore cursor position
+        setTimeout(() => {
+          if (!descriptionRef.current) return;
+
+          // Find all li elements and locate the one with matching text
+          const allLis = descriptionRef.current.querySelectorAll('li');
+          let targetLi: HTMLElement | null = null;
+
+          for (const li of Array.from(allLis)) {
+            if (li.textContent?.includes(liTextContent)) {
+              targetLi = li as HTMLElement;
+              break;
+            }
+          }
+
+          if (targetLi && targetLi.firstChild) {
+            const newRange = document.createRange();
+            const newSelection = window.getSelection();
+
+            try {
+              // Try to restore the cursor position
+              const textNode = targetLi.firstChild;
+              const offset = Math.min(cursorOffset, (textNode.textContent || '').length);
+              newRange.setStart(textNode, offset);
+              newRange.collapse(true);
+              newSelection?.removeAllRanges();
+              newSelection?.addRange(newRange);
+
+              // Ensure the element stays focused
+              descriptionRef.current?.focus();
+            } catch (e) {
+              // If positioning fails, just place cursor at the start
+              newRange.selectNodeContents(targetLi);
+              newRange.collapse(true);
+              newSelection?.removeAllRanges();
+              newSelection?.addRange(newRange);
+            }
+          }
+        }, 0);
+      }
     }
     if (e.key === 'Enter' && e.metaKey) {
       e.preventDefault();
